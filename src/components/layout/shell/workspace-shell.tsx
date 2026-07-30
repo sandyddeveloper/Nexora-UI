@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { CommandPaletteModal } from '@/components/layout/header/search-bar';
 import { RightAIPanel } from '@/components/layout/ai-panel/right-ai-panel';
+import { Footer } from '@/components/layout/footer';
 import { FadeIn } from '@/components/animations';
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
@@ -19,6 +20,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 p-3 sm:p-5 md:p-6 lg:p-8 2xl:p-10 4xl:p-12 max-w-[2400px] w-full mx-auto">
           <FadeIn>{children}</FadeIn>
         </main>
+        <Footer />
       </div>
 
       {/* Right AI Panel & Command Palette */}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -175,9 +176,9 @@ export default function LoginPage() {
         {/* Top Header: Brand & Theme Toggle */}
         <div className="flex items-center justify-between w-full">
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#8b5cf6] via-[#a855f7] to-[#c084fc] p-0.5 shadow-lg shadow-[#8b5cf6]/30">
-              <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-[var(--bg-primary)]">
-                <Zap className="h-5 w-5 text-[#8b5cf6]" />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#8b5cf6] via-[#a855f7] to-[#c084fc] p-0.5 shadow-lg shadow-[#8b5cf6]/30 overflow-hidden">
+              <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-[var(--bg-primary)] overflow-hidden">
+                <Image src="/Nexora.png" alt="Nexora Business OS Logo" width={40} height={40} className="h-full w-full object-contain p-0.5" priority />
               </div>
             </div>
             <div className="flex flex-col">

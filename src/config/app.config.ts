@@ -1,14 +1,18 @@
+import { Workspace } from '@/types';
+
+export const DEFAULT_WORKSPACE: Workspace = {
+  id: 'ws-acme-corp',
+  name: 'Acme Global Inc.',
+  slug: 'acme-global',
+  plan: 'Enterprise',
+  region: 'us-east-1',
+};
+
 export const APP_CONFIG = {
   name: 'Nexora Business OS',
-  tagline: 'The AI-First Enterprise Business Operating System',
-  version: '1.0.0-os-phase1',
-  supportEmail: 'support@nexora.io',
-  docsUrl: 'https://docs.nexora.io',
-  defaultWorkspace: {
-    id: 'ws-acme-corp',
-    name: 'Acme Global Inc.',
-    slug: 'acme-global',
-    plan: 'Enterprise' as const,
-    region: 'us-east-1',
-  },
+  tagline: 'AI-Powered Business Operating System',
+  description:
+    'Nexora Business OS is an AI-powered enterprise platform that unifies workflow automation, CRM, HRMS, project management, analytics, knowledge, and intelligent business operations into one modern workspace.',
+  url: 'https://nexora.io',
+  defaultWorkspace: DEFAULT_WORKSPACE,
 };

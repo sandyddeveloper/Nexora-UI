@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -56,8 +57,9 @@ export function Header() {
 
         {/* Dynamic Breadcrumbs */}
         <nav className="hidden sm:flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
-          <Link href="/workspace" className="hover:text-[var(--text-primary)] font-medium">
-            Nexora OS
+          <Link href="/workspace" className="flex items-center gap-2 hover:text-[var(--text-primary)] font-semibold text-[var(--text-primary)] transition-colors">
+            <Image src="/Nexora.png" alt="Nexora OS Logo" width={20} height={20} className="h-5 w-5 object-contain" />
+            <span>Nexora OS</span>
           </Link>
           {pathSegments.map((segment, index) => {
             const href = `/${pathSegments.slice(0, index + 1).join('/')}`;
