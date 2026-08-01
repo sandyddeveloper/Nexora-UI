@@ -8,18 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
   ChevronRight,
-  Zap,
   LogOut,
-  Sparkles,
-  Search,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebarStore } from '@/store/use-sidebar-store';
-import { useUIStore } from '@/store/use-ui-store';
-import { useAIPanelStore } from '@/store/use-ai-panel-store';
 import { SIDEBAR_NAV_CONFIG } from '@/config/nav.config';
-import { WorkspaceSwitcher } from './workspace-switcher';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -27,8 +21,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 export function Sidebar() {
   const pathname = usePathname();
   const { isCollapsed, isMobileOpen, toggleSidebar, setMobileOpen } = useSidebarStore();
-  const { setSearchOpen } = useUIStore();
-  const { togglePanel: toggleAIPanel } = useAIPanelStore();
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -68,37 +60,6 @@ export function Sidebar() {
             {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
           </button>
         </div>
-
-        {/* Workspace Switcher */}
-        <WorkspaceSwitcher isCollapsed={collapsed} />
-
-        {/* Quick Search Launcher */}
-        {!collapsed ? (
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="flex items-center justify-between gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--glass-bg)] px-3 py-2 text-xs text-[var(--text-muted)] hover:bg-[var(--state-hover)] hover:text-[var(--text-primary)] hover:border-[var(--primary-purple)]/40 transition-all"
-          >
-            <div className="flex items-center gap-2">
-              <Search className="h-3.5 w-3.5 text-[var(--primary-purple)]" />
-              <span>Search workspace...</span>
-            </div>
-            <kbd className="rounded border border-[var(--border-color)] bg-[var(--state-hover)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--text-secondary)]">
-              Ctrl+K
-            </kbd>
-          </button>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="flex h-9 w-full items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--glass-bg)] text-[var(--text-muted)] hover:bg-[var(--state-hover)] hover:text-[var(--text-primary)]"
-              >
-                <Search className="h-4 w-4 text-[var(--primary-purple)]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Search (Ctrl+K)</TooltipContent>
-          </Tooltip>
-        )}
       </div>
 
       {/* Middle Navigation Section (Dynamic flex-1 scrolling) */}
@@ -176,33 +137,6 @@ export function Sidebar() {
 
       {/* Bottom Pinned Section */}
       <div className="flex flex-col gap-2.5 pt-3 border-t border-[var(--border-color)] shrink-0">
-        {!collapsed ? (
-          <button
-            onClick={toggleAIPanel}
-            className="flex items-center justify-between rounded-xl bg-[var(--primary-purple)]/15 border border-[var(--primary-purple)]/30 p-2.5 text-xs text-[var(--text-primary)] hover:bg-[var(--primary-purple)]/25 transition-all shadow-sm"
-          >
-            <div className="flex items-center gap-2 font-medium">
-              <Sparkles className="h-4 w-4 text-[var(--primary-purple)] animate-pulse" />
-              <span>AI Copilot</span>
-            </div>
-            <span className="rounded bg-[var(--primary-purple)]/30 px-1.5 py-0.5 text-[10px] font-bold text-[var(--primary-purple)]">
-              v2.5
-            </span>
-          </button>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={toggleAIPanel}
-                className="flex h-9 w-full items-center justify-center rounded-xl bg-[var(--primary-purple)]/15 border border-[var(--primary-purple)]/30 text-[var(--primary-purple)] hover:bg-[var(--primary-purple)]/25"
-              >
-                <Sparkles className="h-4 w-4 animate-pulse" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Launch AI Copilot</TooltipContent>
-          </Tooltip>
-        )}
-
         <div className="flex items-center justify-between rounded-xl bg-[var(--glass-bg)] p-2 border border-[var(--border-color)]">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <Avatar className="h-8 w-8 shrink-0 border border-[var(--primary-purple)]/30">

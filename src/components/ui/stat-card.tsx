@@ -6,9 +6,9 @@ import { Card } from './card';
 export interface StatCardProps {
   title: string;
   value: string | number;
-  change?: number;
+  change?: number | string;
   changeLabel?: string;
-  icon?: React.ReactNode;
+  icon?: React.ElementType | React.ReactNode;
   trend?: 'up' | 'down' | 'neutral';
   className?: string;
 }
@@ -18,28 +18,45 @@ export function StatCard({
   value,
   change,
   changeLabel = 'vs last period',
-  icon,
+  icon: IconComponent,
   trend = 'up',
   className,
 }: StatCardProps) {
+  const renderIcon = () => {
+    if (!IconComponent) return null;
+    if (React.isValidElement(IconComponent)) return IconComponent;
+    if (typeof IconComponent === 'function' || typeof IconComponent === 'object') {
+      const Icon = IconComponent as React.ElementType;
+      return <Icon className="h-4 w-4" />;
+    }
+    return null;
+  };
+
   return (
-    <Card className={cn('relative overflow-hidden transition-all duration-300 hover:scale-[1.01] bg-[var(--card-bg)] hover:bg-[var(--card-hover)] border-l-4 border-l-[var(--primary-purple)] border-[var(--border-color)] hover:border-[var(--primary-purple)]/50 shadow-sm hover:shadow-md', className)}>
+    <Card className={cn('relative overflow-hidden transition-all duration-300 hover:scale-[1.01] bg-[var(--card-bg)] hover:bg-[var(--card-hover)] border-l-4 border-l-[var(--primary-purple)] border-[var(--border-color)] hover:border-[var(--primary-purple)]/50 shadow-sm hover:shadow-md p-4 flex flex-col justify-between', className)}>
       <div className="flex items-center justify-between pb-2">
-        <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">{title}</span>
-        {icon && <div className="p-2 rounded-xl bg-[var(--glass-bg)] text-[var(--primary-purple)] border border-[var(--border-color)]">{icon}</div>}
+        <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{title}</span>
+        {IconComponent && (
+          <div className="p-2 rounded-xl bg-[var(--primary-purple)]/10 text-[var(--primary-purple)] border border-[var(--primary-purple)]/20">
+            {renderIcon()}
+          </div>
+        )}
       </div>
 
       <div className="mt-1 flex items-baseline justify-between">
-        <div className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">{value}</div>
-        {change !== undefined && (
+        <div className="text-2xl font-black text-[var(--text-primary)] tracking-tight">{value}</div>
+      </div>
+
+      {change !== undefined && (
+        <div className="mt-2 flex items-center justify-between">
           <div
             className={cn(
-              'inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full border',
+              'inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full border',
               trend === 'up'
                 ? 'bg-[#22c55e]/15 text-[#22c55e] border-[#22c55e]/30'
                 : trend === 'down'
                 ? 'bg-[#ef4444]/15 text-[#ef4444] border-[#ef4444]/30'
-                : 'bg-slate-500/15 text-slate-400 border-slate-500/30'
+                : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]'
             )}
           >
             {trend === 'up' ? (
@@ -49,12 +66,10 @@ export function StatCard({
             ) : (
               <Minus className="w-3 h-3 mr-0.5" />
             )}
-            {change > 0 ? `+${change}%` : `${change}%`}
+            {typeof change === 'number' ? (change > 0 ? `+${change}%` : `${change}%`) : change}
           </div>
-        )}
-      </div>
-
-      {changeLabel && <p className="mt-2 text-[11px] text-[var(--text-muted)]">{changeLabel}</p>}
+        </div>
+      )}
     </Card>
   );
 }

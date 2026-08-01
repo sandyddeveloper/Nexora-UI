@@ -45,7 +45,7 @@ export function Header() {
   const pathSegments = pathname.split('/').filter(Boolean);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-[var(--border-color)] bg-[var(--header-bg)] px-3.5 sm:px-6 lg:px-8 2xl:px-10 4xl:px-12 backdrop-blur-xl transition-all">
+    <header className="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between border-b border-[var(--border-color)] bg-[var(--header-bg)] px-3.5 sm:px-6 lg:px-8 2xl:px-10 4xl:px-12 backdrop-blur-xl transition-all">
       {/* Left: Mobile Toggle & Breadcrumbs */}
       <div className="flex items-center gap-3">
         <button

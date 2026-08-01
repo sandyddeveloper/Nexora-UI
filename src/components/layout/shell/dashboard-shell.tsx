@@ -10,17 +10,19 @@ import { FadeIn } from '@/components/animations';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased transition-colors duration-200">
+    <div className="relative flex h-screen overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased transition-colors duration-200">
       {/* Container Sidebar (Sticky Viewport Height) */}
       <Sidebar />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 flex-col min-w-0 min-h-screen overflow-x-hidden">
+      <div className="flex flex-1 flex-col min-w-0 h-screen overflow-hidden">
         <Header />
-        <main className="flex-1 p-3 sm:p-5 md:p-6 lg:p-8 2xl:p-10 4xl:p-12 max-w-[2400px] w-full mx-auto">
-          <FadeIn>{children}</FadeIn>
-        </main>
-        <Footer />
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+          <main className="p-3 sm:p-5 md:p-6 lg:p-8 2xl:p-10 4xl:p-12 max-w-[2400px] w-full mx-auto">
+            <FadeIn>{children}</FadeIn>
+          </main>
+          <Footer />
+        </div>
       </div>
 
       {/* Modals & Command Palettes */}

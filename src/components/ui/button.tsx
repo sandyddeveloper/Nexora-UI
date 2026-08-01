@@ -8,16 +8,22 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        default:
+          'bg-gradient-to-r from-[#8b5cf6] to-[#7c3aed] text-white shadow-[0_4px_20px_rgba(139,92,246,0.35)] hover:from-[#7c3aed] hover:to-[#6d28d9] hover:shadow-[0_6px_24px_rgba(139,92,246,0.45)] border border-[#c084fc]/30',
         primary:
-          'bg-gradient-to-r from-[#8b5cf6] to-[#7c3aed] text-white shadow-[0_4px_20px_rgba(139,92,246,0.35)] hover:from-[#7c3aed] hover:to-[#6d28d9] hover:shadow-[0_6px_24px_rgba(139,92,246,0.45)] hover:-translate-y-0.5 border border-[#c084fc]/30',
+          'bg-gradient-to-r from-[#8b5cf6] to-[#7c3aed] text-white shadow-[0_4px_20px_rgba(139,92,246,0.35)] hover:from-[#7c3aed] hover:to-[#6d28d9] hover:shadow-[0_6px_24px_rgba(139,92,246,0.45)] border border-[#c084fc]/30',
+        purple:
+          'bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white shadow-[0_4px_20px_rgba(139,92,246,0.35)] hover:opacity-90 border border-[#c084fc]/30',
         secondary:
-          'bg-white/[0.06] text-[var(--text-primary)] hover:bg-white/[0.12] border border-white/10 shadow-sm hover:-translate-y-0.5',
+          'bg-white/[0.06] text-[var(--text-primary)] hover:bg-white/[0.12] border border-white/10 shadow-sm',
         glass:
-          'bg-white/[0.04] backdrop-blur-md text-[var(--text-primary)] border border-white/10 hover:bg-white/[0.08] hover:border-[#8b5cf6]/40 shadow-sm hover:-translate-y-0.5',
+          'bg-white/[0.04] backdrop-blur-md text-[var(--text-primary)] border border-white/10 hover:bg-white/[0.08] hover:border-[#8b5cf6]/40 shadow-sm',
         outline:
           'border border-white/15 bg-transparent text-[var(--text-primary)] hover:bg-white/[0.05] hover:border-[#8b5cf6]/50',
         ghost: 'text-[var(--text-muted)] hover:bg-white/10 hover:text-[var(--text-primary)]',
         danger:
+          'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white shadow-md hover:from-[#dc2626] hover:to-[#b91c1c] shadow-[0_4px_20px_rgba(239,68,68,0.35)]',
+        destructive:
           'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white shadow-md hover:from-[#dc2626] hover:to-[#b91c1c] shadow-[0_4px_20px_rgba(239,68,68,0.35)]',
         success:
           'bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-white font-semibold shadow-md hover:from-[#16a34a] hover:to-[#15803d]',

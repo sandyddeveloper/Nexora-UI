@@ -1,22 +1,34 @@
 import {
-  Home,
+  LayoutDashboard,
   Inbox,
+  Search,
   Sparkles,
-  Zap,
-  Users,
-  FolderKanban,
   UserCheck,
+  FolderKanban,
+  Briefcase,
+  BarChart3,
   FileText,
   Calendar as CalendarIcon,
-  BarChart3,
+  Building2,
+  Users,
+  Network,
+  UserCog,
+  ShieldCheck,
+  Lock,
+  FileSpreadsheet,
   Store,
   Blocks,
-  UserCog,
-  Shield,
+  Code2,
   CreditCard,
-  Lock,
   Settings,
-  Building2,
+  Target,
+  DollarSign,
+  Package,
+  Boxes,
+  UserPlus,
+  Award,
+  BookOpen,
+  Bot,
 } from 'lucide-react';
 import { SidebarConfig } from '@/types/nav';
 import { ROUTES } from '@/constants/routes';
@@ -26,9 +38,9 @@ export const SIDEBAR_NAV_CONFIG: SidebarConfig = [
     groupTitle: 'Workspace',
     items: [
       {
-        title: 'Home',
+        title: 'Dashboard',
         href: ROUTES.WORKSPACE.HOME,
-        icon: Home,
+        icon: LayoutDashboard,
       },
       {
         title: 'Inbox',
@@ -38,7 +50,12 @@ export const SIDEBAR_NAV_CONFIG: SidebarConfig = [
         badgeVariant: 'purple',
       },
       {
-        title: 'AI Copilot',
+        title: 'Search',
+        href: ROUTES.WORKSPACE.SEARCH,
+        icon: Search,
+      },
+      {
+        title: 'AI Assistant',
         href: ROUTES.WORKSPACE.AI_COPILOT,
         icon: Sparkles,
         badge: 'GPT-4o',
@@ -50,16 +67,9 @@ export const SIDEBAR_NAV_CONFIG: SidebarConfig = [
     groupTitle: 'Business Apps',
     items: [
       {
-        title: 'Automation',
-        href: ROUTES.WORKSPACE.APPS.AUTOMATION,
-        icon: Zap,
-        badge: '18 Active',
-        badgeVariant: 'success',
-      },
-      {
-        title: 'CRM',
-        href: ROUTES.WORKSPACE.APPS.CRM,
-        icon: Users,
+        title: 'HRMS',
+        href: ROUTES.WORKSPACE.APPS.HRMS,
+        icon: UserCheck,
       },
       {
         title: 'Projects',
@@ -67,9 +77,14 @@ export const SIDEBAR_NAV_CONFIG: SidebarConfig = [
         icon: FolderKanban,
       },
       {
-        title: 'HRMS',
-        href: ROUTES.WORKSPACE.APPS.HRMS,
-        icon: UserCheck,
+        title: 'Portfolio',
+        href: ROUTES.WORKSPACE.APPS.PORTFOLIO,
+        icon: Briefcase,
+      },
+      {
+        title: 'Reports',
+        href: ROUTES.WORKSPACE.APPS.REPORTS,
+        icon: BarChart3,
       },
       {
         title: 'Documents',
@@ -81,62 +96,127 @@ export const SIDEBAR_NAV_CONFIG: SidebarConfig = [
         href: ROUTES.WORKSPACE.APPS.CALENDAR,
         icon: CalendarIcon,
       },
-      {
-        title: 'Analytics',
-        href: ROUTES.WORKSPACE.APPS.ANALYTICS,
-        icon: BarChart3,
-      },
-      {
-        title: 'Marketplace',
-        href: ROUTES.WORKSPACE.APPS.MARKETPLACE,
-        icon: Store,
-        badge: 'New',
-        badgeVariant: 'warning',
-      },
-      {
-        title: 'Integrations',
-        href: ROUTES.WORKSPACE.APPS.INTEGRATIONS,
-        icon: Blocks,
-      },
     ],
   },
   {
     groupTitle: 'Administration',
     items: [
       {
-        title: 'People',
-        href: ROUTES.WORKSPACE.ADMIN.PEOPLE,
-        icon: UserCog,
-      },
-      {
-        title: 'Teams',
-        href: ROUTES.WORKSPACE.ADMIN.TEAMS,
-        icon: Building2,
-      },
-      {
-        title: 'Roles & RBAC',
-        href: ROUTES.WORKSPACE.ADMIN.ROLES,
-        icon: Shield,
-      },
-      {
         title: 'Organizations',
         href: ROUTES.WORKSPACE.ADMIN.ORGANIZATIONS,
         icon: Building2,
       },
       {
-        title: 'Billing & Plan',
-        href: ROUTES.WORKSPACE.ADMIN.BILLING,
-        icon: CreditCard,
+        title: 'People',
+        href: ROUTES.WORKSPACE.ADMIN.PEOPLE,
+        icon: Users,
       },
       {
-        title: 'Security',
-        href: ROUTES.WORKSPACE.ADMIN.SECURITY,
+        title: 'Departments',
+        href: ROUTES.WORKSPACE.ADMIN.DEPARTMENTS,
+        icon: Network,
+      },
+      {
+        title: 'Teams',
+        href: ROUTES.WORKSPACE.ADMIN.TEAMS,
+        icon: UserCog,
+      },
+      {
+        title: 'Roles',
+        href: ROUTES.WORKSPACE.ADMIN.ROLES,
+        icon: ShieldCheck,
+      },
+      {
+        title: 'Permissions',
+        href: ROUTES.WORKSPACE.ADMIN.PERMISSIONS,
         icon: Lock,
       },
       {
-        title: 'Workspace Settings',
-        href: ROUTES.WORKSPACE.ADMIN.SETTINGS,
+        title: 'Audit Logs',
+        href: ROUTES.WORKSPACE.ADMIN.AUDIT_LOGS,
+        icon: FileSpreadsheet,
+      },
+    ],
+  },
+  {
+    groupTitle: 'Platform',
+    items: [
+      {
+        title: 'Marketplace',
+        href: ROUTES.WORKSPACE.PLATFORM.MARKETPLACE,
+        icon: Store,
+        badge: 'New',
+        badgeVariant: 'warning',
+      },
+      {
+        title: 'Integrations',
+        href: ROUTES.WORKSPACE.PLATFORM.INTEGRATIONS,
+        icon: Blocks,
+      },
+      {
+        title: 'API',
+        href: ROUTES.WORKSPACE.PLATFORM.API,
+        icon: Code2,
+      },
+      {
+        title: 'Billing',
+        href: ROUTES.WORKSPACE.PLATFORM.BILLING,
+        icon: CreditCard,
+      },
+    ],
+  },
+  {
+    groupTitle: 'Settings',
+    items: [
+      {
+        title: 'Settings',
+        href: ROUTES.WORKSPACE.SETTINGS,
         icon: Settings,
+      },
+    ],
+  },
+  {
+    groupTitle: 'Future',
+    items: [
+      {
+        title: 'CRM',
+        href: ROUTES.WORKSPACE.FUTURE.CRM,
+        icon: Target,
+      },
+      {
+        title: 'Finance',
+        href: ROUTES.WORKSPACE.FUTURE.FINANCE,
+        icon: DollarSign,
+      },
+      {
+        title: 'Assets',
+        href: ROUTES.WORKSPACE.FUTURE.ASSETS,
+        icon: Package,
+      },
+      {
+        title: 'Inventory',
+        href: ROUTES.WORKSPACE.FUTURE.INVENTORY,
+        icon: Boxes,
+      },
+      {
+        title: 'Recruitment',
+        href: ROUTES.WORKSPACE.FUTURE.RECRUITMENT,
+        icon: UserPlus,
+      },
+      {
+        title: 'Performance',
+        href: ROUTES.WORKSPACE.FUTURE.PERFORMANCE,
+        icon: Award,
+      },
+      {
+        title: 'Knowledge',
+        href: ROUTES.WORKSPACE.FUTURE.KNOWLEDGE,
+        icon: BookOpen,
+      },
+      {
+        title: 'AI Agents',
+        href: ROUTES.WORKSPACE.FUTURE.AI_AGENTS,
+        icon: Bot,
       },
     ],
   },
