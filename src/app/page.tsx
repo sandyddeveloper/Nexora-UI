@@ -1,56 +1,34 @@
-import React from 'react';
-import { Navbar } from '@/components/landing/Navbar';
-import { HeroSection } from '@/components/landing/HeroSection';
-import { TrustLogosSection } from '@/components/landing/TrustLogosSection';
-import { AIDemoSection } from '@/components/landing/AIDemoSection';
-import { ProductPreviewSection } from '@/components/landing/ProductPreviewSection';
-import { FeatureGridSection } from '@/components/landing/FeatureGridSection';
-import { EnterpriseBenefitsSection } from '@/components/landing/EnterpriseBenefitsSection';
-import { AutomationShowcaseSection } from '@/components/landing/AutomationShowcaseSection';
-import { AnalyticsShowcaseSection } from '@/components/landing/AnalyticsShowcaseSection';
-import { SecuritySection } from '@/components/landing/SecuritySection';
-import { CustomerStoriesSection } from '@/components/landing/CustomerStoriesSection';
-import { IntegrationsSection } from '@/components/landing/IntegrationsSection';
-import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
-import { DeveloperAPISection } from '@/components/landing/DeveloperAPISection';
-import { PricingPreviewSection } from '@/components/landing/PricingPreviewSection';
-import { FAQSection } from '@/components/landing/FAQSection';
-import { CTASection } from '@/components/landing/CTASection';
-import { Footer } from '@/components/landing/Footer';
+import React from "react";
+import { LandingNavbar } from "@/components/landing/LandingNavbar";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { CompanyLogosMarquee } from "@/components/landing/CompanyLogosMarquee";
+import { PreviewSection } from "@/components/landing/PreviewSection";
+import { StatsSection } from "@/components/landing/StatsSection";
+import { FeaturesSection } from "@/components/landing/FeaturesSection";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { ChangelogSection } from "@/components/landing/ChangelogSection";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { ContactSection } from "@/components/landing/ContactSection";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
-export const metadata = {
-  title: 'Nexora Engine | The Sovereign AI Operating System for Modern Enterprises',
-  description: 'Orchestrate AI Employees, CRM, HRMS, and multi-cloud workflows on a single air-gapped neural engine with sub-millisecond latency.',
-};
-
-export default function RootLandingPage() {
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#faf8ff] text-[#0f172a] font-sans selection:bg-[#7c3aed]/20 selection:text-[#7c3aed]">
-      {/* Navigation Header Bar */}
-      <Navbar />
-
-      {/* 17 Sequential Landing Page Sections */}
-      <main>
+    <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950 transition-colors">
+      <LandingNavbar />
+      <main className="flex-1">
         <HeroSection />
-        <TrustLogosSection />
-        <AIDemoSection />
-        <ProductPreviewSection />
-        <FeatureGridSection />
-        <EnterpriseBenefitsSection />
-        <AutomationShowcaseSection />
-        <AnalyticsShowcaseSection />
-        <SecuritySection />
-        <CustomerStoriesSection />
-        <IntegrationsSection />
-        <HowItWorksSection />
-        <DeveloperAPISection />
-        <PricingPreviewSection />
+        <CompanyLogosMarquee />
+        <PreviewSection />
+        <StatsSection />
+        <FeaturesSection />
+        <TestimonialsSection />
+        <ChangelogSection />
+        <PricingSection />
+        <ContactSection />
         <FAQSection />
-        <CTASection />
       </main>
-
-      {/* Matrix Enterprise Footer */}
-      <Footer />
+      <LandingFooter />
     </div>
   );
 }

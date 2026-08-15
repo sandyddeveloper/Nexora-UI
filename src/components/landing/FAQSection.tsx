@@ -1,73 +1,82 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { HelpCircle, ChevronDown } from 'lucide-react';
+import React, { useState } from "react";
+import { Badge } from "@/components/ui/Badge";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const FAQS = [
+  {
+    question: "How does the dual User and Staff role architecture work?",
+    answer:
+      "Nexora provides dedicated views and security boundaries. Customers access standard workspaces, analytics, and billing, while staff members access the internal operational station, SLA-tracked ticket queues, and system cluster health monitors.",
+  },
+  {
+    question: "Is there full Dark and Light mode theme support?",
+    answer:
+      "Yes! The light mode features a refined crisp white palette with vibrant purple brand accents, while the dark mode features a deep slate canvas with glowing neon-violet highlights. The preference automatically persists and syncs with system settings.",
+  },
+  {
+    question: "How quickly can we deploy to production?",
+    answer:
+      "Nexora is structured with the modern Next.js 14+ App Router, full TypeScript types, and Tailwind CSS. You can link your PostgreSQL or REST/GraphQL backends and deploy to Vercel, AWS, or Docker containers in minutes.",
+  },
+  {
+    question: "Can we configure custom SLA countdowns and webhooks?",
+    answer:
+      "Absolutely. The staff triage station comes equipped with custom SLA tier targets (Urgent: < 15m, High: < 1h) and webhook triggers for automated Slack or PagerDuty incident notifications.",
+  },
+];
 
 export function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
-  const faqs = [
-    {
-      q: 'How does Nexora Engine differ from traditional per-seat SaaS tools?',
-      a: 'Traditional SaaS solutions charge hefty per-seat licenses (e.g. $180/user/month across Jira, Salesforce, Workday). Nexora Engine operates on predictable compute-based pricing, allowing unlimited employees and AI agents on a single sovereign cluster.'
-    },
-    {
-      q: 'Can Nexora Engine be deployed in an air-gapped VPC or on-premise hardware?',
-      a: 'Yes. Nexora Engine supports full single-tenant deployment inside your AWS, GCP, Azure, or bare-metal hardware enclaves with zero external data egress. You retain 100% cryptographic control over KMS keys and model parameters.'
-    },
-    {
-      q: 'Are our enterprise data and RAG vector indices used to train public models?',
-      a: 'Never. All customer data, vector embeddings, and operational logs are strictly isolated within your private enclave and are never shared or used to train foundation models.'
-    },
-    {
-      q: 'What SLA uptime guarantees are provided?',
-      a: 'Nexora Enterprise Sovereign and Global Institution tiers include a 99.999% active-active multi-region SLA with 24/7 dedicated solutions engineering support.'
-    },
-    {
-      q: 'How fast is the typical enterprise migration or deployment?',
-      a: 'Single-tenant clusters deploy automatically in under 4 minutes. Pre-built data connectors sync PostgreSQL, Snowflake, SAML SSO, and Slack webhooks in hours rather than months.'
-    }
-  ];
-
   return (
-    <section id="faq" className="py-24 md:py-32 bg-[#faf8ff] border-b border-[#e9d5ff] relative">
-      <div className="max-w-4xl mx-auto px-6 sm:px-8">
-        
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f4f0ff] border border-[#e9d5ff] text-xs font-semibold text-[#7c3aed] shadow-sm mb-4">
-            <HelpCircle className="w-3.5 h-3.5 text-[#7c3aed]" />
-            <span>FREQUENTLY ASKED QUESTIONS</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#0f172a] font-display">
-            Frequently Asked Questions.
+    <section id="faq" className="py-20">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <Badge variant="purple" size="md">
+            Got Questions?
+          </Badge>
+          <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">
+            Frequently Asked Questions
           </h2>
+          <p className="mt-3 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+            Find answers to common questions about deployment, role access, and platform scalability.
+          </p>
         </div>
 
-        {/* Accordions */}
-        <div className="mt-14 space-y-4">
-          {faqs.map((faq, idx) => (
-            <div
-              key={idx}
-              className="rounded-2xl bg-[#ffffff] border border-[#e9d5ff] overflow-hidden shadow-sm transition-all"
-            >
-              <button
-                onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
-                className="w-full p-6 text-left flex items-center justify-between gap-4 font-bold text-base text-[#0f172a] hover:text-[#7c3aed] transition-colors"
+        <div className="space-y-4">
+          {FAQS.map((faq, idx) => {
+            const isOpen = openIdx === idx;
+
+            return (
+              <div
+                key={idx}
+                className="rounded-2xl border border-zinc-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden transition-all"
               >
-                <span>{faq.q}</span>
-                <ChevronDown className={`w-5 h-5 text-[#7c3aed] shrink-0 transition-transform ${openIdx === idx ? 'rotate-180' : ''}`} />
-              </button>
+                <button
+                  onClick={() => setOpenIdx(isOpen ? null : idx)}
+                  className="w-full flex items-center justify-between p-5 text-left text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                >
+                  <span>{faq.question}</span>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-zinc-400 transition-transform duration-200 shrink-0 ml-4",
+                      isOpen && "rotate-180 text-purple-600 dark:text-purple-400"
+                    )}
+                  />
+                </button>
 
-              {openIdx === idx && (
-                <div className="px-6 pb-6 pt-0 text-sm text-[#475569] leading-relaxed font-medium border-t border-[#e9d5ff]/50">
-                  <p className="pt-4">{faq.a}</p>
-                </div>
-              )}
-            </div>
-          ))}
+                {isOpen && (
+                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-zinc-100 dark:border-zinc-800 animate-in fade-in duration-200">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-
       </div>
     </section>
   );

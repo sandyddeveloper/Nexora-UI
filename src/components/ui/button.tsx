@@ -1,74 +1,65 @@
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { cn } from "@/lib/utils";
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b5cf6] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none active:scale-[0.98]',
-  {
-    variants: {
-      variant: {
-        default:
-          'bg-gradient-to-r from-[#8b5cf6] to-[#7c3aed] text-white shadow-[0_4px_20px_rgba(139,92,246,0.35)] hover:from-[#7c3aed] hover:to-[#6d28d9] hover:shadow-[0_6px_24px_rgba(139,92,246,0.45)] border border-[#c084fc]/30',
-        primary:
-          'bg-gradient-to-r from-[#8b5cf6] to-[#7c3aed] text-white shadow-[0_4px_20px_rgba(139,92,246,0.35)] hover:from-[#7c3aed] hover:to-[#6d28d9] hover:shadow-[0_6px_24px_rgba(139,92,246,0.45)] border border-[#c084fc]/30',
-        purple:
-          'bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white shadow-[0_4px_20px_rgba(139,92,246,0.35)] hover:opacity-90 border border-[#c084fc]/30',
-        secondary:
-          'bg-white/[0.06] text-[var(--text-primary)] hover:bg-white/[0.12] border border-white/10 shadow-sm',
-        glass:
-          'bg-white/[0.04] backdrop-blur-md text-[var(--text-primary)] border border-white/10 hover:bg-white/[0.08] hover:border-[#8b5cf6]/40 shadow-sm',
-        outline:
-          'border border-white/15 bg-transparent text-[var(--text-primary)] hover:bg-white/[0.05] hover:border-[#8b5cf6]/50',
-        ghost: 'text-[var(--text-muted)] hover:bg-white/10 hover:text-[var(--text-primary)]',
-        danger:
-          'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white shadow-md hover:from-[#dc2626] hover:to-[#b91c1c] shadow-[0_4px_20px_rgba(239,68,68,0.35)]',
-        destructive:
-          'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white shadow-md hover:from-[#dc2626] hover:to-[#b91c1c] shadow-[0_4px_20px_rgba(239,68,68,0.35)]',
-        success:
-          'bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-white font-semibold shadow-md hover:from-[#16a34a] hover:to-[#15803d]',
-      },
-      size: {
-        xs: 'h-7 px-2.5 text-xs rounded-md',
-        sm: 'h-8 px-3 text-xs rounded-lg',
-        md: 'h-10 px-4 text-sm rounded-xl',
-        lg: 'h-12 px-6 text-base rounded-2xl',
-        icon: 'h-9 w-9 p-0 rounded-xl',
-      },
-    },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
-    },
-  }
-);
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "purple-glow";
+  size?: "sm" | "md" | "lg" | "icon";
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, isLoading, leftIcon, rightIcon, children, disabled, ...props }, ref) => {
+  ({ className, variant = "primary", size = "md", isLoading, leftIcon, rightIcon, children, disabled, ...props }, ref) => {
+    const baseStyles =
+      "inline-flex items-center justify-center font-semibold transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed select-none rounded-xl";
+
+    const variantStyles = {
+      primary:
+        "bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white shadow-sm",
+      "purple-glow":
+        "bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white shadow-sm",
+      secondary:
+        "bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800",
+      outline:
+        "bg-white dark:bg-zinc-900 hover:bg-purple-50/60 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-700",
+      ghost:
+        "text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50/70 dark:hover:bg-zinc-800/60",
+      danger:
+        "bg-red-600 hover:bg-red-700 text-white shadow-sm",
+    };
+
+    const sizeStyles = {
+      sm: "text-xs px-3 py-1.5 gap-1.5 h-8",
+      md: "text-sm px-4 py-2 gap-2 h-10",
+      lg: "text-base px-6 py-2.5 gap-2.5 h-12",
+      icon: "h-9 w-9 p-0",
+    };
+
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={disabled || isLoading}
+        className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}
         {...props}
       >
         {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin text-current" />
-        ) : leftIcon ? (
-          <span className="mr-2 inline-flex items-center">{leftIcon}</span>
-        ) : null}
-        <span>{children}</span>
-        {!isLoading && rightIcon ? <span className="ml-2 inline-flex items-center">{rightIcon}</span> : null}
+          <svg className="animate-spin h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+        ) : (
+          leftIcon
+        )}
+        {children}
+        {!isLoading && rightIcon}
       </button>
     );
   }
 );
-Button.displayName = 'Button';
+
+Button.displayName = "Button";

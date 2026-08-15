@@ -1,197 +1,82 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useTheme } from 'next-themes';
-import { motion } from 'framer-motion';
-import {
-  RefreshCw,
-  Home,
-  AlertTriangle,
-  Sun,
-  Moon,
-  ArrowLeft,
-  HelpCircle,
-  FolderKanban,
-  Users,
-  Zap,
-  BarChart3,
-  Settings,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useMounted } from '@/hooks/use-mounted';
+import React, { useEffect } from "react";
+import Link from "next/link";
+import { LandingNavbar } from "@/components/landing/LandingNavbar";
+import { LandingFooter } from "@/components/landing/LandingFooter";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { AlertTriangle, RefreshCw, Home, WifiOff } from "lucide-react";
 
-export default function ErrorBoundary({
+export default function GlobalError({
   error,
   reset,
 }: {
-  error?: Error & { digest?: string };
-  reset?: () => void;
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
-  const router = useRouter();
-  const { theme, setTheme } = useTheme();
-  const mounted = useMounted();
-
   useEffect(() => {
-    // Telemetry logger hook
+    console.error("Uncaught application error:", error);
   }, [error]);
 
-  const handleReload = () => {
-    if (reset) {
-      reset();
-    } else {
-      window.location.reload();
-    }
-  };
-
-  const QUICK_LINKS = [
-    { title: 'CRM & Deals', href: '/workspace/apps/crm', icon: Users },
-    { title: 'Projects & Tasks', href: '/workspace/apps/projects', icon: FolderKanban },
-    { title: 'Automations', href: '/workspace/apps/automation', icon: Zap },
-    { title: 'Analytics', href: '/workspace/apps/analytics', icon: BarChart3 },
-    { title: 'Settings', href: '/workspace/admin/settings', icon: Settings },
-  ];
-
   return (
-    <div className="relative flex h-screen w-full flex-col justify-between overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-200">
-      {/* Ambient Glows */}
-      <div className="pointer-events-none fixed -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-rose-500/20 via-[var(--primary-purple)]/15 to-transparent blur-[140px]" />
-      <div className="pointer-events-none fixed -bottom-40 left-1/2 h-[450px] w-[450px] -translate-x-1/2 rounded-full bg-gradient-to-br from-red-500/15 via-rose-500/10 to-transparent blur-[140px]" />
+    <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors">
+      <LandingNavbar />
 
-      {/* Grid Pattern */}
-      <div
-        className="pointer-events-none fixed inset-0 opacity-[0.03] dark:opacity-[0.05]"
-        style={{ backgroundImage: 'radial-gradient(var(--text-primary) 1px, transparent 1px)', backgroundSize: '28px 28px' }}
-      />
+      <main className="flex-1 flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-xl w-full text-center space-y-8">
+          {/* Error Visual Icon */}
+          <div className="inline-flex items-center justify-center h-24 w-24 rounded-3xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 shadow-sm mx-auto">
+            <AlertTriangle className="h-12 w-12" />
+          </div>
 
-      {/* Header Bar */}
-      <header className="relative z-20 flex h-16 w-full items-center justify-between border-b border-[var(--border-color)] bg-[var(--header-bg)] px-4 sm:px-8 backdrop-blur-xl shrink-0">
-        <Link href="/workspace" className="flex items-center gap-3 transition-transform hover:scale-105">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-rose-500 via-[#8b5cf6] to-[#a855f7] p-0.5 shadow-md shadow-rose-500/20 overflow-hidden">
-            <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-[var(--bg-primary)] overflow-hidden">
-              <Image src="/Nexora.png" alt="Nexora OS Logo" width={36} height={36} className="h-full w-full object-contain p-0.5" priority />
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2">
+              <Badge variant="rose" size="md">
+                Application Exception
+              </Badge>
+              {error.digest && (
+                <span className="text-xs font-mono text-zinc-400">Digest: {error.digest}</span>
+              )}
             </div>
+
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Something Went Wrong
+            </h1>
+
+            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
+              We encountered an unexpected error while processing this request. Our staff operations team has been notified.
+            </p>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-black tracking-wider text-[var(--text-primary)]">NEXORA</span>
-            <span className="text-[9px] font-bold text-rose-400 tracking-widest uppercase">BUSINESS OS</span>
-          </div>
-        </Link>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--state-hover)] hover:text-[var(--text-primary)] transition-all"
-            title="Toggle Theme"
-          >
-            {mounted && theme === 'light' ? (
-              <Sun className="h-4 w-4 text-amber-500" />
-            ) : (
-              <Moon className="h-4 w-4 text-purple-400" />
-            )}
-          </button>
-
-          <Link href="/workspace">
-            <Button variant="primary" size="xs" leftIcon={<Home className="h-3.5 w-3.5" />}>
-              Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
-
-      {/* Main Content (Strictly fitted within viewport) */}
-      <main className="relative z-10 flex flex-1 items-center justify-center p-4 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="flex w-full max-w-xl flex-col items-center text-center rounded-3xl border border-[var(--border-color)] bg-[var(--surface-elevated)]/90 p-6 sm:p-8 shadow-2xl backdrop-blur-2xl"
-        >
-          {/* Badge */}
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3.5 py-1 text-xs font-semibold text-rose-500">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            <span>Notice • Something Went Wrong</span>
-          </div>
-
-          {/* Code */}
-          <h1 className="text-6xl sm:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-[#f43f5e] to-[var(--primary-purple)] drop-shadow-sm select-none">
-            500
-          </h1>
-
-          <h2 className="mt-1 text-xl sm:text-2xl font-extrabold text-[var(--text-primary)]">
-            Unexpected Error Occurred
-          </h2>
-
-          <p className="mt-2 text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed max-w-md">
-            Our application ran into an unexpected issue while loading this page. Please try refreshing or return to the dashboard.
-          </p>
 
           {/* Action Buttons */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button
-              onClick={handleReload}
-              variant="danger"
-              size="sm"
-              leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+              variant="primary"
+              size="lg"
+              className="w-full sm:w-auto"
+              onClick={() => reset()}
+              leftIcon={<RefreshCw className="h-4 w-4" />}
             >
-              Refresh Page
+              Try Again
             </Button>
 
-            <Button
-              onClick={() => router.push('/workspace')}
-              variant="secondary"
-              size="sm"
-              leftIcon={<Home className="h-3.5 w-3.5" />}
-            >
-              Back to Dashboard
-            </Button>
+            <Link href="/connection-lost" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto" leftIcon={<WifiOff className="h-4 w-4" />}>
+                Check Connection
+              </Button>
+            </Link>
 
-            <Button
-              onClick={() => router.back()}
-              variant="glass"
-              size="sm"
-              leftIcon={<ArrowLeft className="h-3.5 w-3.5" />}
-            >
-              Go Back
-            </Button>
+            <Link href="/" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto" leftIcon={<Home className="h-4 w-4" />}>
+                Homepage
+              </Button>
+            </Link>
           </div>
-
-          {/* Quick Links */}
-          <div className="mt-6 w-full pt-4 border-t border-[var(--border-color)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] block mb-2">
-              Explore Popular Modules:
-            </span>
-            <div className="flex flex-wrap justify-center gap-1.5">
-              {QUICK_LINKS.map((link, idx) => {
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={idx}
-                    href={link.href}
-                    className="flex items-center gap-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--glass-bg)] px-2.5 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--state-hover)] hover:text-[var(--text-primary)] hover:border-[var(--primary-purple)]/50 transition-all"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-[var(--primary-purple)]" />
-                    <span>{link.title}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
+        </div>
       </main>
 
-      {/* Footer Bar */}
-      <footer className="relative z-20 flex h-11 w-full items-center justify-between border-t border-[var(--border-color)] bg-[var(--header-bg)] px-4 sm:px-8 text-[11px] text-[var(--text-muted)] backdrop-blur-xl shrink-0">
-        <div className="flex items-center gap-1.5">
-          <HelpCircle className="h-3.5 w-3.5 text-rose-400" />
-          <span>Need help? Visit the Nexora Support Portal</span>
-        </div>
-        <div>
-          <span>Nexora Business OS</span>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }

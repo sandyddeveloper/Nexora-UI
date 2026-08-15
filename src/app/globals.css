@@ -1,103 +1,87 @@
 @import "tailwindcss";
 
-@theme {
-  --breakpoint-xs: 24rem;
-  --breakpoint-sm: 40rem;
-  --breakpoint-md: 48rem;
-  --breakpoint-lg: 64rem;
-  --breakpoint-xl: 80rem;
-  --breakpoint-2xl: 96rem;
-  --breakpoint-3xl: 120rem;
-
-  --color-canvas: var(--nexora-bg-canvas);
-  --color-surface-base: var(--nexora-surface-base);
-  --color-surface-card: var(--nexora-surface-card);
-  --color-surface-elevated: var(--nexora-surface-elevated);
-
-  --color-brand-primary: var(--nexora-primary);
-  --color-brand-[#7c3aed]: #7c3aed;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
-  /* PRISTINE PURPLE & WHITE ENTERPRISE PALETTE (LIGHT THEME DEFAULT) */
-  :root,
-  .light,
+  :root {
+    --background: #ffffff;
+    --foreground: #0f172a;
+    
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    
+    --primary: #7c3aed; /* Solid Purple-600 */
+    --primary-hover: #6d28d9; /* Solid Purple-700 */
+    --primary-foreground: #ffffff;
+    
+    --secondary: #f5f3ff; /* Purple-50 */
+    --secondary-foreground: #6d28d9;
+    
+    --muted: #f8f9fc;
+    --muted-foreground: #64748b;
+    
+    --accent: #ede9fe; /* Purple-100 */
+    --accent-foreground: #6d28d9;
+    
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    
+    --border: #e2e8f0;
+    --border-accent: #ddd6fe;
+    --input: #e2e8f0;
+    --ring: #7c3aed;
+  }
+
   .dark {
-    /* Primary Brand Purple Anchors */
-    --nexora-primary: #7c3aed;        /* Crisp Vivid Purple */
-    --nexora-primary-hover: #6d28d9;  /* Dark Purple Hover */
-    --nexora-purple-light: #8b5cf6;   /* Light Accent Purple */
-    --nexora-purple-deep: #4c1d95;    /* Deep Royal Purple */
-    --nexora-purple-bg: #faf8ff;      /* Porcelain Soft Purple Canvas */
-    --nexora-purple-surface: #f3ebff; /* Light Surface Container */
-
-    /* Functional State Tokens */
-    --nexora-success: #10b981;       /* Emerald Success */
-    --nexora-warning: #f59e0b;       /* Warm Amber Warning */
-    --nexora-danger: #ef4444;        /* Crimson Red Danger */
-    --nexora-info: #3b82f6;          /* Azure Blue Info */
-
-    /* Canvas & Surface Hierarchy (White & Soft Purple Base) */
-    --nexora-bg-canvas: #faf8ff;     /* Pure Soft White/Purple Canvas */
-    --nexora-surface-base: #ffffff;  /* Pure White Surface */
-    --nexora-surface-card: #ffffff;  /* Pure White Card Base */
-    --nexora-surface-elevated: #f4f0ff; /* Elevated Light Purple Surface */
-    --nexora-glass-bg: rgba(255, 255, 255, 0.85);
-
-    /* Purple Keylines & Borders */
-    --nexora-border-subtle: #e9d5ff; /* Subtle Purple Border */
-    --nexora-border-strong: #ddd6fe; /* Strong Purple Keyline */
-
-    /* High-Contrast Typography Tokens */
-    --nexora-text-primary: #0f172a;   /* High Contrast Dark Slate/Navy */
-    --nexora-text-secondary: #475569; /* Medium Slate Subtext */
-    --nexora-text-muted: #64748b;     /* Muted Grey Meta */
-    --nexora-text-purple: #7c3aed;    /* Vivid Purple Text */
-
-    /* Radius Tokens */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
-    --radius-full: 9999px;
-
-    /* Motion Easing Tokens */
-    --ease-snappy-in: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-smooth-out: cubic-bezier(0.7, 0, 0.84, 0);
-    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-spring: cubic-bezier(0.34, 1.35, 0.64, 1);
-
-    /* Shadow & Glow Tokens */
-    --shadow-sm: 0 1px 3px rgba(124, 58, 237, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 20px -2px rgba(124, 58, 237, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
-    --shadow-lg: 0 12px 36px -4px rgba(124, 58, 237, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
-    --shadow-glow: 0 0 24px -2px rgba(124, 58, 237, 0.35);
-
-    /* Legacy Map Variables */
-    --bg-primary: var(--nexora-bg-canvas);
-    --bg-secondary: var(--nexora-surface-base);
-    --surface: var(--nexora-surface-card);
-    --surface-elevated: var(--nexora-surface-elevated);
-    --card-bg: var(--nexora-surface-card);
-    --card-hover: #f4f0ff;
-    --glass-bg: var(--nexora-glass-bg);
-    --glass-border: var(--nexora-border-subtle);
-    --primary-purple: var(--nexora-primary);
-    --text-primary: var(--nexora-text-primary);
-    --text-secondary: var(--nexora-text-secondary);
-    --text-muted: var(--nexora-text-muted);
-    --border-color: var(--nexora-border-subtle);
+    --background: #09090b;
+    --foreground: #f8fafc;
+    
+    --card: #121218;
+    --card-foreground: #f8fafc;
+    
+    --popover: #121218;
+    --popover-foreground: #f8fafc;
+    
+    --primary: #8b5cf6; /* Solid Violet-500 */
+    --primary-hover: #7c3aed;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #1e1b4b;
+    --secondary-foreground: #ddd6fe;
+    
+    --muted: #181820;
+    --muted-foreground: #94a3b8;
+    
+    --accent: #2e1065;
+    --accent-foreground: #ddd6fe;
+    
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    
+    --border: #272734;
+    --border-accent: #5b21b6;
+    --input: #272734;
+    --ring: #8b5cf6;
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  min-height: 100%;
+}
+
 body {
-  background-color: #faf8ff;
-  color: #0f172a;
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
   overflow-x: hidden;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  position: relative;
 }
 
 /* Custom Scrollbar */
@@ -105,82 +89,41 @@ body {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #faf8ff;
+  background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #ddd6fe;
+  background: rgba(124, 58, 237, 0.25);
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #7c3aed;
+  background: rgba(124, 58, 237, 0.55);
 }
 
-/* Glassmorphism Panel */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid #e9d5ff;
-}
-
-/* Photonic White Glass Card */
-.glass-card {
-  background: #ffffff;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #e9d5ff;
-  border-radius: var(--radius-lg);
-  transition: transform 180ms var(--ease-snappy-in), border-color 180ms var(--ease-standard), box-shadow 180ms var(--ease-standard);
-  position: relative;
-  box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.08);
-}
-
-.glass-card:hover {
-  border-color: #c4b5fd;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px -4px rgba(124, 58, 237, 0.18);
-}
-
-/* Keyline Separator */
-.keyline-divider {
-  height: 1px;
-  width: 100%;
-  background: linear-gradient(90deg, rgba(124, 58, 237, 0) 0%, rgba(124, 58, 237, 0.25) 50%, rgba(124, 58, 237, 0) 100%);
-}
-
-/* Deep Purple Hero Gradient Text */
-.text-gradient-hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #5b21b6 70%, #7c3aed 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Purple AI Gradient Text */
-.text-gradient-ai {
-  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Sub-pixel Vector Dot Grid Background */
-.bg-grid-pattern {
-  background-image: radial-gradient(rgba(124, 58, 237, 0.12) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-/* Continuous Marquee Ticker Animation */
+/* Infinite Marquee Animation (Right to Left) */
 @keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 35s linear infinite;
+  animation: marquee 28s linear infinite;
 }
 
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+.marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
 }
