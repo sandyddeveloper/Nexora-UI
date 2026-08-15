@@ -7,6 +7,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { Layers, Sun, Moon, ArrowRight, Menu, X, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/ui/Logo";
 
 export function LandingNavbar() {
   const { resolvedTheme, toggleTheme } = useTheme();
@@ -45,15 +46,8 @@ export function LandingNavbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2.5 transition-transform active:scale-95 z-50">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-600 text-white shadow-sm">
-              <Layers className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold text-lg tracking-tight text-purple-700 dark:text-purple-400">
-                NEXORA
-              </span>
-            </div>
+          <Link href="/" className="flex items-center transition-transform active:scale-95 z-50">
+            <Logo size="md" />
           </Link>
 
           {/* Desktop Nav Links */}

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Layers } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/ui/Logo";
 
 export function LandingFooter() {
   const [email, setEmail] = useState("");
@@ -26,13 +27,8 @@ export function LandingFooter() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 pb-12 border-b border-zinc-100 dark:border-zinc-800">
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-600 text-white shadow-sm">
-                <Layers className="h-5 w-5" />
-              </div>
-              <span className="font-extrabold text-lg tracking-tight text-purple-700 dark:text-purple-400">
-                NEXORA
-              </span>
+            <Link href="/" className="flex items-center">
+              <Logo size="md" />
             </Link>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-sm">
               Unified intelligence, real-time metrics, and automated staff incident operations built for modern cloud platforms.

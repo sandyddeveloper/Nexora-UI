@@ -89,8 +89,13 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
             onClick={handleLinkClick}
             className="flex items-center gap-2.5 overflow-hidden transition-transform active:scale-95"
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-600 text-white shadow-sm">
-              <Layers className="h-5 w-5" />
+            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl bg-white shadow-xs border border-zinc-200/80 dark:border-zinc-800 p-0.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/Nexora.png"
+                alt="Nexora Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             {(!isCollapsed || isMobileOpen) && (
               <div className="flex flex-col">

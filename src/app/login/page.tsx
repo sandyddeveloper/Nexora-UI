@@ -9,6 +9,7 @@ import { Layers, Mail, Lock, ArrowRight, User, Shield, Sun, Moon, Sparkles, Chec
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Logo } from "@/components/ui/Logo";
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
@@ -42,13 +43,8 @@ export default function LoginPage() {
     <div className="relative min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-950 transition-colors overflow-hidden">
       {/* Top Bar with Brand & Theme Toggle */}
       <div className="absolute top-6 left-6 right-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-600 text-white shadow-sm">
-            <Layers className="h-4 w-4" />
-          </div>
-          <span className="font-extrabold text-base tracking-tight text-purple-700 dark:text-purple-400">
-            NEXORA
-          </span>
+        <Link href="/" className="flex items-center">
+          <Logo size="md" />
         </Link>
 
         <button
