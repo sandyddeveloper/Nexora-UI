@@ -48,7 +48,7 @@ export function PreferencesComponent({ compact = false, onSaved }: PreferencesCo
   } = usePreferences();
 
   const [activeTab, setActiveTab] = useState<PrefTab>("language");
-  const { languages, search, setSearch, isLoading, isLiveApi, refetch } = useLanguages();
+  const { languages, search, setSearch, isLoading } = useLanguages();
   const [saveToast, setSaveToast] = useState(false);
 
   const handleSelectLanguage = (lang: APILanguage) => {
@@ -130,11 +130,6 @@ export function PreferencesComponent({ compact = false, onSaved }: PreferencesCo
                   <Globe className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                   Select Display Language
                 </h4>
-                {isLiveApi ? (
-                  <Badge variant="emerald" size="sm" dot>Live Engine API</Badge>
-                ) : (
-                  <Badge variant="purple" size="sm">Active</Badge>
-                )}
               </div>
               <p className="text-[11px] text-zinc-500 mt-0.5">
                 Active: <span className="font-bold text-purple-700 dark:text-purple-400">{language.name} {language.country ? `(${language.country})` : ""} [{language.code.toUpperCase()}]</span>
