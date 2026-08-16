@@ -54,7 +54,7 @@ interface SidebarProps {
 export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
-  const { user, role, logout, switchRole } = useAuth();
+  const { user, role, logout } = useAuth();
 
   const navSections = role === "staff" ? STAFF_NAV_SECTIONS : USER_NAV_SECTIONS;
 
@@ -119,22 +119,19 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
           </button>
         </div>
 
-        {/* Role Pill Switcher */}
+        {/* Role Identity Badge */}
         {(!isCollapsed || isMobileOpen) && (
           <div className="px-3 pt-3 pb-1">
             <div className="flex items-center justify-between p-2 rounded-xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/40">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
                 <span className="text-xs font-semibold text-purple-900 dark:text-purple-200">
-                  {role === "staff" ? "Staff Role" : "User Role"}
+                  {role === "staff" ? "Company Staff" : "Client Workspace"}
                 </span>
               </div>
-              <button
-                onClick={() => switchRole(role === "staff" ? "user" : "staff")}
-                className="text-[11px] font-semibold text-purple-700 dark:text-purple-300 hover:underline hover:text-purple-900 dark:hover:text-purple-100"
-              >
-                Switch to {role === "staff" ? "User" : "Staff"}
-              </button>
+              <Badge variant={role === "staff" ? "purple" : "gray"} size="sm">
+                {role === "staff" ? "Admin" : "Active"}
+              </Badge>
             </div>
           </div>
         )}
@@ -211,7 +208,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
             {/* Avatar */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+              src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || "User")}`}
               alt={user?.name || "User"}
               className="h-8 w-8 rounded-lg object-cover ring-2 ring-purple-500/30"
             />
@@ -219,10 +216,10 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
             {(!isCollapsed || isMobileOpen) && (
               <div className="flex flex-1 flex-col overflow-hidden text-left">
                 <span className="truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                  {user?.name || "Alex Morgan"}
+                  {user?.name || (role === "staff" ? "Staff Member" : "Workspace User")}
                 </span>
                 <span className="truncate text-[10px] text-zinc-400 dark:text-zinc-500">
-                  {user?.email || "alex@nexora.io"}
+                  {user?.email || ""}
                 </span>
               </div>
             )}

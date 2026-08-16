@@ -79,32 +79,14 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
   useEffect(() => {
     try {
       // Theme
-      const savedTheme = localStorage.getItem("nexora-theme") as ThemeMode | null;
+      const savedTheme = (localStorage.getItem("theme") || localStorage.getItem("nexora-theme")) as ThemeMode | null;
       if (savedTheme && (savedTheme === "light" || savedTheme === "dark" || savedTheme === "system")) {
         setThemeState(savedTheme);
       }
-
-      // Language
-      const savedLang = localStorage.getItem("nexora-language-object");
-      if (savedLang) {
-        setLanguageState(JSON.parse(savedLang));
-      } else {
-        const savedCode = localStorage.getItem("nexora-language");
-        if (savedCode) {
-          setLanguageState({
-            code: savedCode,
-            name: savedCode.toUpperCase(),
-            country: null,
-            flag: "🌐",
-          });
-        }
-      }
-
-      // Notifications
-      const savedNotifs = localStorage.getItem("nexora-notifications");
-      if (savedNotifs) {
-        setNotifications(JSON.parse(savedNotifs));
-      }
+      localStorage.removeItem("nexora-theme");
+      localStorage.removeItem("nexora-language");
+      localStorage.removeItem("nexora-language-object");
+      localStorage.removeItem("nexora-notifications");
     } catch {}
 
     // Async fetch preferences from backend API if available
@@ -162,7 +144,8 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     }
 
     try {
-      localStorage.setItem("nexora-theme", theme);
+      localStorage.setItem("theme", theme);
+      localStorage.removeItem("nexora-theme");
     } catch {}
   }, [theme, mounted]);
 
@@ -187,10 +170,6 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
         flag: "🌐",
       };
       setLanguageState(newLang);
-      try {
-        localStorage.setItem("nexora-language", newLang.code);
-        localStorage.setItem("nexora-language-object", JSON.stringify(newLang));
-      } catch {}
     } else {
       const newLang: SelectedLanguage = {
         id: lang.id,
@@ -200,30 +179,18 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
         flag: "flag" in lang ? lang.flag : countryCodeToFlag(lang.country),
       };
       setLanguageState(newLang);
-      try {
-        localStorage.setItem("nexora-language", newLang.code);
-        localStorage.setItem("nexora-language-object", JSON.stringify(newLang));
-      } catch {}
     }
   };
 
   const toggleNotification = (key: keyof NotificationPreferences) => {
-    setNotifications((prev) => {
-      const updated = { ...prev, [key]: !prev[key] };
-      try {
-        localStorage.setItem("nexora-notifications", JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const savePreferences = async () => {
     setIsSaving(true);
     try {
-      localStorage.setItem("nexora-theme", theme);
-      localStorage.setItem("nexora-language", language.code);
-      localStorage.setItem("nexora-language-object", JSON.stringify(language));
-      localStorage.setItem("nexora-notifications", JSON.stringify(notifications));
+      localStorage.setItem("theme", theme);
+      localStorage.removeItem("nexora-theme");
 
       // Attempt to sync with backend API
       try {

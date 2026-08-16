@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -24,14 +24,26 @@ import {
 export default function ProfilePage() {
   const { user, role, updateProfile } = useAuth();
 
-  const [name, setName] = useState(user?.name || "Alex Morgan");
-  const [email, setEmail] = useState(user?.email || "alex.morgan@company.com");
-  const [title, setTitle] = useState(user?.title || "Product Lead");
-  const [department, setDepartment] = useState(user?.department || "Growth & Innovation");
-  const [location, setLocation] = useState(user?.location || "San Francisco, CA");
-  const [bio, setBio] = useState(user?.bio || "Passionate about building scalable digital experiences.");
-  const [twoFactor, setTwoFactor] = useState(user?.twoFactorEnabled ?? true);
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [title, setTitle] = useState(user?.title || "");
+  const [department, setDepartment] = useState(user?.department || "");
+  const [location, setLocation] = useState(user?.location || "");
+  const [bio, setBio] = useState(user?.bio || "");
+  const [twoFactor, setTwoFactor] = useState(user?.twoFactorEnabled ?? false);
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setTitle(user.title || "");
+      setDepartment(user.department || "");
+      setLocation(user.location || "");
+      setBio(user.bio || "");
+      setTwoFactor(user.twoFactorEnabled ?? false);
+    }
+  }, [user]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +59,8 @@ export default function ProfilePage() {
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2500);
   };
+
+  const dynamicAvatar = user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name || user?.name || "User")}`;
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto animate-in fade-in duration-300">
@@ -82,50 +96,41 @@ export default function ProfilePage() {
               <div className="relative group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                  src={dynamicAvatar}
                   alt={user?.name || "Avatar"}
                   className="h-20 w-20 rounded-2xl object-cover ring-4 ring-purple-500/20"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-0 rounded-2xl bg-zinc-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity"
-                  title="Change avatar photo"
-                >
-                  <Camera className="h-5 w-5" />
-                </button>
               </div>
 
               <div className="space-y-1 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">{user?.name}</h3>
-                  <Badge variant={role === "staff" ? "amber" : "purple"}>
-                    {role === "staff" ? "Staff Member" : "Standard User"}
+                  <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-100">{user?.name || "User"}</h3>
+                  <Badge variant={role === "staff" ? "amber" : "purple"} size="sm">
+                    {role === "staff" ? "Company Staff" : "Client User"}
                   </Badge>
                 </div>
-                <p className="text-xs text-zinc-500">{user?.email} • Joined {user?.joinedDate || "March 2024"}</p>
-                <div className="pt-2 flex items-center justify-center sm:justify-start gap-2">
-                  <Button type="button" variant="outline" size="sm" className="text-xs">
-                    Upload New Picture
-                  </Button>
-                </div>
+                <p className="text-xs text-zinc-500">{user?.email || "No email on record"}</p>
+                <p className="text-[11px] text-zinc-400 font-mono mt-1">User ID: #{user?.id || "N/A"}</p>
               </div>
             </div>
 
             {/* Inputs Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Full Name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                placeholder="Enter full name"
                 leftIcon={<User className="h-4 w-4" />}
                 required
               />
 
               <Input
-                label="Work Email"
+                label="Email Address"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                placeholder="Enter email address"
                 leftIcon={<Mail className="h-4 w-4" />}
                 required
               />
@@ -133,104 +138,80 @@ export default function ProfilePage() {
               <Input
                 label="Professional Title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                leftIcon={<Building className="h-4 w-4" />}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                placeholder="e.g. Lead Engineer, Product Owner"
+                leftIcon={<Shield className="h-4 w-4" />}
               />
 
               <Input
                 label="Department"
                 value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                leftIcon={<Shield className="h-4 w-4" />}
-              />
-
-              <Input
-                label="Location / Office"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                leftIcon={<MapPin className="h-4 w-4" />}
-              />
-
-              <Input
-                label="Status Indicator"
-                defaultValue="Active / Available"
-                disabled
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDepartment(e.target.value)}
+                placeholder="e.g. Engineering, Platform Operations"
+                leftIcon={<Building className="h-4 w-4" />}
               />
             </div>
 
-            {/* Bio textarea */}
-            <div className="space-y-1.5 text-left">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-                Bio & Responsibilities
+            {/* Bio Field */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                Biography
               </label>
               <textarea
-                rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500"
+                rows={3}
+                placeholder="Write a brief professional bio..."
+                className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Security & Authentication Card */}
+        {/* Security & Multi-Factor Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Security & Access Control</CardTitle>
-            <CardDescription>Manage your passwords and two-factor authentication security</CardDescription>
+            <CardTitle>Authentication & Security</CardTitle>
+            <CardDescription>Multi-factor protection and active cryptographic session tokens</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {/* 2FA Toggle Row */}
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-purple-600 dark:text-purple-400">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 shrink-0">
                   <Smartphone className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                  <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
                     Two-Factor Authentication (2FA)
                   </h4>
-                  <p className="text-xs text-zinc-500">
-                    Require an authenticator app TOTP code on every login attempt.
+                  <p className="text-[11px] text-zinc-500 mt-0.5">
+                    Secure your account with time-based one-time password (TOTP) verification.
                   </p>
                 </div>
               </div>
 
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={twoFactor}
-                  onChange={(e) => setTwoFactor(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
-
-            {/* Active Sessions */}
-            <div className="space-y-2 pt-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Active Login Sessions</h4>
-              <div className="p-3 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2.5">
-                  <Globe className="h-4 w-4 text-emerald-500" />
-                  <div>
-                    <span className="font-semibold text-zinc-900 dark:text-zinc-100">Chrome on macOS (Current)</span>
-                    <p className="text-[11px] text-zinc-400">IP: 192.168.1.42 • San Francisco, CA</p>
-                  </div>
-                </div>
-                <Badge variant="emerald" size="sm">Active Now</Badge>
+              <div className="flex items-center gap-3">
+                <Badge variant={twoFactor ? "emerald" : "gray"} size="sm" dot>
+                  {twoFactor ? "Enabled" : "Disabled"}
+                </Badge>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={twoFactor ? "outline" : "primary"}
+                  onClick={() => setTwoFactor(!twoFactor)}
+                  className="text-xs"
+                >
+                  {twoFactor ? "Disable 2FA" : "Enable 2FA"}
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Submit Bar */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button type="button" variant="outline">
-            Cancel
-          </Button>
-          <Button type="submit" variant="purple-glow">
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button type="submit" variant="primary" size="md" className="px-6 font-bold shadow-md">
             Save Profile Changes
           </Button>
         </div>

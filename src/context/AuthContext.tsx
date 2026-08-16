@@ -1,133 +1,265 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { UserProfile, UserRole, AuthContextType } from "@/types/auth";
+import { UserProfile, UserRole } from "@/types/auth";
+import { authService, AuthUserData, LoginCredentials } from "@/services/authService";
 import { useRouter } from "next/navigation";
 
-const USER_MOCK: UserProfile = {
-  id: "usr_99812",
-  name: "Alex Morgan",
-  email: "alex.morgan@company.com",
-  role: "user",
-  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  title: "Product Lead",
-  department: "Growth & Innovation",
-  phone: "+1 (555) 234-8900",
-  location: "San Francisco, CA",
-  bio: "Passionate about building scalable digital experiences, cloud architecture, and modern product analytics.",
-  joinedDate: "March 2024",
-  twoFactorEnabled: true,
-  status: "active",
-};
+export interface LoginResult {
+  success: boolean;
+  access_token: string;
+  refresh_token: string;
+  active_role: string | null;
+  org_id: number | null;
+  hasOrganization: boolean;
+  user?: AuthUserData | null;
+}
 
-const STAFF_MOCK: UserProfile = {
-  id: "stf_44021",
-  name: "Jordan Hayes",
-  email: "jordan.hayes@staff.nexora.io",
-  role: "staff",
-  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-  title: "Senior Operations Specialist",
-  department: "Tier-2 Technical Support",
-  phone: "+1 (555) 876-1234",
-  location: "Austin, TX",
-  bio: "Lead support operations engineer handling customer incident triage, SLA monitoring, and system deployment management.",
-  joinedDate: "January 2023",
-  twoFactorEnabled: true,
-  status: "busy",
-};
+export interface AuthContextType {
+  user: UserProfile | null;
+  authUserData: AuthUserData | null;
+  role: UserRole;
+  isAuthenticated: boolean;
+  isInitialized: boolean;
+  isLoading: boolean;
+  login: (credentials: LoginCredentials) => Promise<LoginResult>;
+  signup: (name: string, email: string, targetRole?: UserRole) => Promise<boolean>;
+  logout: () => Promise<void>;
+  switchRole: (newRole: UserRole) => void;
+  updateProfile: (updates: Partial<UserProfile>) => void;
+}
+
+function parseJwt(token: string): any {
+  try {
+    const base64Url = token.split(".")[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+function buildProfileFromClaims(claims: any, activeRole: string | null, fallbackUsername: string = ""): UserProfile {
+  const isStaff = activeRole === "super_admin" || activeRole === "staff" || claims?.user_type === "staff";
+  const username = claims?.username || fallbackUsername || (isStaff ? "Staff User" : "User");
+  const email = claims?.email || "";
+  const id = String(claims?.user_id || claims?.id || "");
+
+  return {
+    id: id || `usr_${Date.now()}`,
+    name: username,
+    email: email,
+    role: isStaff ? "staff" : "user",
+    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(username)}`,
+    title: isStaff ? (activeRole === "super_admin" ? "Super Admin" : "Staff Engineer") : "Member",
+    bio: "",
+    joinedDate: new Date().toLocaleDateString(),
+    twoFactorEnabled: false,
+    status: "active",
+  };
+}
+
+function mapBackendUserToProfile(backendUser: AuthUserData): UserProfile {
+  const isStaff = Boolean(backendUser.is_staff || backendUser.is_superuser || backendUser.user_type === "staff");
+  const fullName = `${backendUser.first_name || ""} ${backendUser.last_name || ""}`.trim() || backendUser.username;
+
+  return {
+    id: String(backendUser.id),
+    name: fullName,
+    email: backendUser.email,
+    role: isStaff ? "staff" : "user",
+    avatar: backendUser.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`,
+    title: backendUser.role_name || (backendUser.is_org_owner ? "Organization Owner" : "Member"),
+    department: backendUser.department_name || undefined,
+    phone: backendUser.phone_number || undefined,
+    bio: backendUser.bio || "",
+    joinedDate: backendUser.date_joined ? new Date(backendUser.date_joined).toLocaleDateString() : new Date().toLocaleDateString(),
+    twoFactorEnabled: false,
+    status: "active",
+  };
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(USER_MOCK);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [authUserData, setAuthUserData] = useState<AuthUserData | null>(null);
   const [role, setRole] = useState<UserRole>("user");
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
+  // Load stored auth session on mount from real JWT token
   useEffect(() => {
-    // Check saved session in local storage
-    const savedRole = localStorage.getItem("nexora-role") as UserRole | null;
-    const savedAuth = localStorage.getItem("nexora-auth");
+    try {
+      const storedToken = localStorage.getItem("access");
+      const activeRole = localStorage.getItem("active_role");
 
-    if (savedAuth === "false") {
+      if (!storedToken) {
+        setIsAuthenticated(false);
+        setUser(null);
+        setAuthUserData(null);
+      } else {
+        const claims = parseJwt(storedToken);
+        const isStaff = activeRole === "super_admin" || activeRole === "staff" || claims?.user_type === "staff";
+        setIsAuthenticated(true);
+        setRole(isStaff ? "staff" : "user");
+        setUser(buildProfileFromClaims(claims, activeRole));
+      }
+    } catch {
       setIsAuthenticated(false);
       setUser(null);
-    } else if (savedRole === "staff") {
-      setRole("staff");
-      setUser(STAFF_MOCK);
-      setIsAuthenticated(true);
-    } else {
-      setRole("user");
-      setUser(USER_MOCK);
-      setIsAuthenticated(true);
+    } finally {
+      setIsInitialized(true);
     }
   }, []);
 
-  const login = async (email: string, targetRole: UserRole = "user"): Promise<boolean> => {
+  /**
+   * Login using Django Backend API
+   * POST /api/auth/login/
+   */
+  const login = async (credentials: LoginCredentials): Promise<LoginResult> => {
     setIsLoading(true);
-    // Simulate network authentication delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    const selectedProfile = targetRole === "staff" ? { ...STAFF_MOCK, email } : { ...USER_MOCK, email };
-    setUser(selectedProfile);
-    setRole(targetRole);
-    setIsAuthenticated(true);
-    localStorage.setItem("nexora-role", targetRole);
-    localStorage.setItem("nexora-auth", "true");
-    setIsLoading(false);
+    try {
+      const data = await authService.login(credentials);
 
-    if (targetRole === "staff") {
-      router.push("/dashboard/staff");
-    } else {
-      router.push("/dashboard");
+      const accessToken = data.access_token || data.access || "";
+      const refreshToken = data.refresh_token || data.refresh || "";
+      const activeRole = data.active_role || (data.user?.is_staff ? "super_admin" : (data.user?.is_org_owner ? "owner" : null));
+      const orgId = data.org_id !== undefined && data.org_id !== null ? data.org_id : (data.user?.organization_id || null);
+
+      // Save strictly the 5 required keys
+      if (accessToken) {
+        localStorage.setItem("access", accessToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem("refresh", refreshToken);
+      }
+      if (activeRole) {
+        localStorage.setItem("active_role", activeRole);
+      }
+      if (orgId !== null && orgId !== undefined) {
+        localStorage.setItem("org_id", String(orgId));
+      }
+
+      const isStaff = activeRole === "super_admin" || activeRole === "staff" || Boolean(data.user?.is_staff || data.user?.is_superuser);
+      const computedRole: UserRole = isStaff ? "staff" : "user";
+
+      if (data.user) {
+        const mappedProfile = mapBackendUserToProfile(data.user);
+        setUser(mappedProfile);
+        setAuthUserData(data.user);
+      } else {
+        const claims = parseJwt(accessToken);
+        const dynamicProfile = buildProfileFromClaims(claims, activeRole, credentials.username);
+        setUser(dynamicProfile);
+      }
+
+      setRole(computedRole);
+      setIsAuthenticated(true);
+
+      return {
+        success: true,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        active_role: activeRole,
+        org_id: orgId,
+        hasOrganization: Boolean(orgId),
+        user: data.user || null,
+      };
+    } catch (error: any) {
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-    return true;
   };
 
-  const signup = async (name: string, email: string, targetRole: UserRole = "user"): Promise<boolean> => {
+  /**
+   * Dev Demo Signup
+   */
+  const signup = async (
+    name: string,
+    email: string,
+    targetRole: UserRole = "user"
+  ): Promise<boolean> => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const mockToken = "token_" + Date.now();
+    localStorage.setItem("access", mockToken);
+    localStorage.setItem("refresh", mockToken);
+    localStorage.setItem("active_role", targetRole === "staff" ? "staff" : "owner");
 
     const newProfile: UserProfile = {
-      ...(targetRole === "staff" ? STAFF_MOCK : USER_MOCK),
+      id: `usr_${Date.now()}`,
       name,
       email,
       role: targetRole,
-      id: `usr_${Math.floor(10000 + Math.random() * 90000)}`,
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
+      title: targetRole === "staff" ? "Staff Engineer" : "Member",
+      bio: "",
+      joinedDate: new Date().toLocaleDateString(),
+      twoFactorEnabled: false,
+      status: "active",
     };
 
     setUser(newProfile);
     setRole(targetRole);
     setIsAuthenticated(true);
-    localStorage.setItem("nexora-role", targetRole);
-    localStorage.setItem("nexora-auth", "true");
     setIsLoading(false);
 
     if (targetRole === "staff") {
       router.push("/dashboard/staff");
     } else {
-      router.push("/dashboard");
+      router.push("/dashboard/workspaces");
     }
     return true;
   };
 
-  const logout = () => {
+  /**
+   * Logout user and revoke tokens
+   * POST /api/auth/logout/
+   */
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await authService.logout();
+    } catch {}
+
     setUser(null);
+    setAuthUserData(null);
     setIsAuthenticated(false);
-    localStorage.setItem("nexora-auth", "false");
+    
+    // Clear only auth keys (theme is preserved)
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("active_role");
+    localStorage.removeItem("org_id");
+    
+    setIsLoading(false);
     router.push("/login");
   };
 
   const switchRole = (newRole: UserRole) => {
     setRole(newRole);
-    localStorage.setItem("nexora-role", newRole);
+    const newActiveRole = newRole === "staff" ? "staff" : "owner";
+    localStorage.setItem("active_role", newActiveRole);
+    if (user) {
+      setUser({ ...user, role: newRole });
+    }
     if (newRole === "staff") {
-      setUser(STAFF_MOCK);
       router.push("/dashboard/staff");
     } else {
-      setUser(USER_MOCK);
-      router.push("/dashboard");
+      router.push("/dashboard/workspaces");
     }
   };
 
@@ -141,8 +273,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        authUserData,
         role,
         isAuthenticated,
+        isInitialized,
         isLoading,
         login,
         signup,

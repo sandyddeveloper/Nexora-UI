@@ -19,11 +19,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("nexora-theme") as Theme | null;
+    const savedTheme = (localStorage.getItem("theme") || localStorage.getItem("nexora-theme")) as Theme | null;
     if (savedTheme && (savedTheme === "light" || savedTheme === "dark" || savedTheme === "system")) {
       setThemeState(savedTheme);
+      localStorage.setItem("theme", savedTheme);
+      localStorage.removeItem("nexora-theme");
     } else {
       setThemeState("light");
+      localStorage.setItem("theme", "light");
     }
     setMounted(true);
   }, []);
@@ -49,7 +52,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove("dark");
     }
 
-    localStorage.setItem("nexora-theme", theme);
+    localStorage.setItem("theme", theme);
+    localStorage.removeItem("nexora-theme");
   }, [theme, mounted]);
 
   const setTheme = (newTheme: Theme) => {

@@ -2,40 +2,66 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { UserRole } from "@/types/auth";
-import { Layers, Mail, Lock, ArrowRight, User, Shield, Sun, Moon, Sparkles, CheckCircle2 } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  Sun,
+  Moon,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Logo } from "@/components/ui/Logo";
+import { cn } from "@/lib/utils";
 
 export default function LoginPage() {
+  const router = useRouter();
   const { login, isLoading } = useAuth();
   const { resolvedTheme, toggleTheme } = useTheme();
 
-  const [email, setEmail] = useState("alex.morgan@company.com");
-  const [password, setPassword] = useState("••••••••••••");
-  const [role, setRole] = useState<UserRole>("user");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, role);
-  };
+    setErrorMessage(null);
+    setFieldErrors({});
 
-  const handleQuickDemo = async (demoRole: UserRole) => {
-    if (demoRole === "staff") {
-      setEmail("jordan.hayes@staff.nexora.io");
-      setRole("staff");
-      await login("jordan.hayes@staff.nexora.io", "staff");
-    } else {
-      setEmail("alex.morgan@company.com");
-      setRole("user");
-      await login("alex.morgan@company.com", "user");
+    try {
+      const result = await login({
+        username: username.trim(),
+        password,
+      });
+
+      if (result.success) {
+        // Direct Dashboard Routing Decision Tree
+        if (result.active_role === "super_admin" || result.active_role === "staff") {
+          // Internal Company Staff / Super Admin -> Platform Staff Dashboard
+          router.push("/dashboard/staff");
+        } else if (result.org_id) {
+          // Client User with Active Organization -> Client Workspaces Dashboard
+          router.push("/dashboard/workspaces");
+        } else {
+          // Individual User without Organization -> Organization Setup Wizard
+          router.push("/onboarding/organization");
+        }
+      }
+    } catch (err: any) {
+      if (err?.errors && typeof err.errors === "object") {
+        setFieldErrors(err.errors);
+      }
+      setErrorMessage(err?.message || "Invalid username/email or password.");
     }
   };
 
@@ -67,74 +93,73 @@ export default function LoginPage() {
             Welcome Back
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Sign in to access your workspaces and operational command center
+            Sign in with your username or email to access your workspace
           </p>
         </div>
 
-        {/* Quick Demo Role Selector */}
-        <div className="p-3 mb-6 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/70 dark:border-purple-800/40 space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-semibold text-purple-900 dark:text-purple-200">
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3 text-purple-600" /> Quick 1-Click Demo Login:
-            </span>
+        {/* Global Error Banner */}
+        {errorMessage && (
+          <div className="mb-4 flex items-center gap-2.5 p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-semibold animate-in fade-in duration-150">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{errorMessage}</span>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickDemo("user")}
-              className="text-xs justify-center bg-white dark:bg-zinc-900 font-semibold"
-              leftIcon={<User className="h-3 w-3 text-purple-600" />}
-            >
-              As User
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickDemo("staff")}
-              className="text-xs justify-center bg-white dark:bg-zinc-900 font-semibold"
-              leftIcon={<Shield className="h-3 w-3 text-purple-600" />}
-            >
-              As Staff
-            </Button>
-          </div>
-        </div>
+        )}
 
         {/* Credentials Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Email Address"
-            type="email"
-            placeholder="you@company.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            leftIcon={<Mail className="h-4 w-4" />}
-            required
-          />
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
+              Username or Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="you@company.com or username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className={cn(
+                  "w-full rounded-xl border bg-zinc-50 dark:bg-zinc-800/80 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500",
+                  fieldErrors.username ? "border-red-500" : "border-zinc-200 dark:border-zinc-700"
+                )}
+              />
+            </div>
+            {fieldErrors.username && (
+              <p className="mt-1 text-[11px] font-semibold text-red-600">{fieldErrors.username.join(" ")}</p>
+            )}
+          </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
                 Password
               </label>
               <button
                 type="button"
                 onClick={() => setIsForgotModalOpen(true)}
-                className="text-xs font-medium text-purple-600 dark:text-purple-400 hover:underline"
+                className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline"
               >
                 Forgot password?
               </button>
             </div>
-            <Input
-              type="password"
-              placeholder="••••••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              leftIcon={<Lock className="h-4 w-4" />}
-              required
-            />
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <input
+                type="password"
+                placeholder="••••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className={cn(
+                  "w-full rounded-xl border bg-zinc-50 dark:bg-zinc-800/80 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500",
+                  fieldErrors.password ? "border-red-500" : "border-zinc-200 dark:border-zinc-700"
+                )}
+              />
+            </div>
+            {fieldErrors.password && (
+              <p className="mt-1 text-[11px] font-semibold text-red-600">{fieldErrors.password.join(" ")}</p>
+            )}
           </div>
 
           <div className="flex items-center justify-between pt-1">
@@ -145,24 +170,24 @@ export default function LoginPage() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="rounded border-zinc-300 text-purple-600 focus:ring-purple-500 h-3.5 w-3.5"
               />
-              <span>Remember this browser</span>
+              <span>Remember this session</span>
             </label>
           </div>
 
           <Button
             type="submit"
-            variant="purple-glow"
-            className="w-full h-11 text-sm font-semibold"
+            variant="primary"
+            className="w-full h-11 text-sm font-bold shadow-md shadow-purple-600/20"
             isLoading={isLoading}
             rightIcon={<ArrowRight className="h-4 w-4" />}
           >
-            Sign In to Dashboard
+            Sign In to Platform
           </Button>
         </form>
 
         {/* Footer Link */}
         <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          Don't have an account yet?{" "}
+          Don&apos;t have an account yet?{" "}
           <Link href="/signup" className="font-bold text-purple-600 dark:text-purple-400 hover:underline">
             Create account
           </Link>
@@ -181,9 +206,9 @@ export default function LoginPage() {
       >
         {resetSent ? (
           <div className="py-4 text-center space-y-2">
-            <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto animate-bounce" />
+            <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto" />
             <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Recovery Email Sent!</h4>
-            <p className="text-xs text-zinc-500">Check your inbox for a magic link to reset your account password.</p>
+            <p className="text-xs text-zinc-500">Check your inbox for a link to reset your password.</p>
             <Button
               variant="outline"
               size="sm"
@@ -208,7 +233,7 @@ export default function LoginPage() {
               label="Email"
               type="email"
               placeholder="you@company.com"
-              defaultValue={email}
+              defaultValue={username}
               required
             />
             <div className="flex justify-end gap-2 pt-2">

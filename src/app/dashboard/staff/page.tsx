@@ -1,39 +1,60 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { STAFF_STATS } from "@/data/mockData";
-import { StatCard } from "@/components/dashboard/StatCard";
+import { useOrganization } from "@/context/OrganizationContext";
 import { StaffTicketQueue } from "@/components/dashboard/StaffTicketQueue";
 import { SystemHealthCard } from "@/components/dashboard/SystemHealthCard";
+import { CreateOrganizationModal } from "@/components/organizations/CreateOrganizationModal";
+import { CreateUserModal } from "@/components/staff/CreateUserModal";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
   ShieldAlert,
   ShieldCheck,
-  AlertTriangle,
-  RefreshCw,
-  Zap,
+  Building2,
+  UserPlus,
+  Plus,
+  ArrowRight,
   Users,
   Server,
-  BellRing,
+  Layers,
+  Sparkles,
+  Activity,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 
-const ON_CALL_STAFF = [
-  { name: "Jordan Hayes", role: "Primary Tier-2 Lead", activeTickets: 6, shift: "08:00 - 16:00 EST", status: "online" },
-  { name: "Alex Chen", role: "DevOps / Infra SRE", activeTickets: 3, shift: "08:00 - 16:00 EST", status: "online" },
-  { name: "Elena Rostova", role: "Billing Specialist", activeTickets: 4, shift: "09:00 - 17:00 EST", status: "away" },
-  { name: "Marcus Vance", role: "Security & SAML Lead", activeTickets: 1, shift: "12:00 - 20:00 EST", status: "online" },
-];
-
 export default function StaffDashboardPage() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, role, isInitialized } = useAuth();
+  const { organizations } = useOrganization();
+
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
+  const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
+  const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
   const [broadcastSent, setBroadcastSent] = useState(false);
   const [broadcastMessage, setBroadcastMessage] = useState("");
+
+  // Access Control: Normal user cannot see staff dashboard
+  useEffect(() => {
+    if (isInitialized && role !== "staff") {
+      router.replace("/dashboard");
+    }
+  }, [isInitialized, role, router]);
+
+  if (role !== "staff") {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center">
+        <ShieldAlert className="h-10 w-10 text-amber-500 mb-3" />
+        <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">Restricted Staff Area</h3>
+        <p className="text-xs text-zinc-500 mt-1">Redirecting to your workspace dashboard...</p>
+      </div>
+    );
+  }
 
   const handleBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +66,8 @@ export default function StaffDashboardPage() {
     }, 1500);
   };
 
+  const activePartitionsCount = organizations.filter((o) => o.status === "active").length;
+
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Staff Command Header */}
@@ -52,143 +75,167 @@ export default function StaffDashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="purple" size="sm" dot>
-              Staff Shift Active: Tier-2 On Call
+              Staff Shift Active: Super Admin Tier
             </Badge>
-            <span className="text-xs text-zinc-400 font-mono">Operator ID: #STF-44021</span>
+            <span className="text-xs text-zinc-400 font-mono">Company Staff Core</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">
             Staff Operations Center
           </h1>
           <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Triage customer incidents, oversee cluster health percentiles, and resolve SLA escalations.
+            Provision client organizations, register client users & assign roles, and oversee tenant telemetry.
           </p>
         </div>
 
         {/* Staff Quick Action Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Button
-            variant="outline"
+            variant="primary"
             size="sm"
-            onClick={() => setIsBroadcastModalOpen(true)}
-            className="text-xs"
-            leftIcon={<BellRing className="h-3.5 w-3.5 text-amber-500" />}
+            onClick={() => setIsCreateOrgModalOpen(true)}
+            className="text-xs font-bold"
+            leftIcon={<Building2 className="h-3.5 w-3.5" />}
           >
-            System Broadcast
+            + Provision Organization
           </Button>
+
           <Button
             variant="purple-glow"
             size="sm"
-            className="text-xs"
-            leftIcon={<ShieldAlert className="h-3.5 w-3.5" />}
+            onClick={() => setIsCreateUserModalOpen(true)}
+            className="text-xs font-bold"
+            leftIcon={<UserPlus className="h-3.5 w-3.5" />}
           >
-            Trigger Incident Escalation
+            + Create User & Assign Role
           </Button>
         </div>
       </div>
 
-      {/* 4 Staff Operational Stat Cards */}
+      {/* 4 Dynamic Operational Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        {STAFF_STATS.map((stat) => (
-          <StatCard key={stat.id} metric={stat} />
-        ))}
+        <Card variant="default" className="p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Client Tenants</span>
+            <div className="h-9 w-9 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 flex items-center justify-center">
+              <Building2 className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mt-2">
+            {organizations.length}
+          </h3>
+          <p className="text-xs text-zinc-500 mt-1">
+            {organizations.length === 1 ? "1 Registered Organization" : `${organizations.length} Registered Organizations`}
+          </p>
+        </Card>
+
+        <Card variant="default" className="p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Active Schema Partitions</span>
+            <div className="h-9 w-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center">
+              <Layers className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mt-2">
+            {activePartitionsCount}
+          </h3>
+          <p className="text-xs text-zinc-500 mt-1">
+            PostgreSQL multi-tenant schemas
+          </p>
+        </Card>
+
+        <Card variant="default" className="p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Platform Core Services</span>
+            <div className="h-9 w-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 flex items-center justify-center">
+              <Server className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mt-2">
+            100%
+          </h3>
+          <p className="text-xs text-zinc-500 mt-1">
+            All API endpoints operational
+          </p>
+        </Card>
+
+        <Card variant="default" className="p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Authority Level</span>
+            <div className="h-9 w-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-50 mt-2">
+            Super Admin
+          </h3>
+          <p className="text-xs text-zinc-500 mt-1">
+            Internal Company Staff
+          </p>
+        </Card>
       </div>
 
-      {/* Dedicated Support Ticket Queue */}
+      {/* Support Incident Queue */}
       <div id="tickets">
         <StaffTicketQueue />
       </div>
 
-      {/* Infrastructure Health & On-Call Shift Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch" id="system">
+      {/* Bottom Grid: Cluster Health & Active Operator Session */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* System Health Telemetry */}
         <div className="lg:col-span-2">
           <SystemHealthCard />
         </div>
 
-        {/* On-Call Team Roster */}
-        <div className="lg:col-span-1">
-          <Card className="h-full flex flex-col justify-between">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">On-Call Staff Roster</CardTitle>
-                <Badge variant="emerald" size="sm" dot>4 Active</Badge>
-              </div>
-              <CardDescription>Engineers assigned to active SLA rotation</CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              <div className="space-y-3">
-                {ON_CALL_STAFF.map((staff, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl border border-zinc-200/70 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 flex items-center justify-between"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{staff.name}</span>
-                      <span className="text-[10px] text-zinc-400">{staff.role}</span>
+        {/* Active Operator Session Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-600" />
+                Staff Operator Session
+              </CardTitle>
+              <Badge variant="purple" size="sm">Active Shift</Badge>
+            </div>
+            <CardDescription>Internal Nexora company operator</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40">
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || "Staff")}`}
+                    alt="Staff"
+                    className="h-9 w-9 rounded-xl object-cover ring-1 ring-purple-500/40"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{user?.name || "Staff Admin"}</span>
+                      <span className="h-2 w-2 rounded-full bg-emerald-500" title="Online" />
                     </div>
-
-                    <div className="text-right">
-                      <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400">
-                        {staff.activeTickets} tickets
-                      </span>
-                      <p className="text-[9px] text-zinc-400">{staff.shift}</p>
-                    </div>
+                    <p className="text-[10px] text-zinc-400">Platform Operations • Super Admin Active</p>
                   </div>
-                ))}
+                </div>
+                <Badge variant="purple" size="sm">
+                  Online
+                </Badge>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Broadcast Modal */}
-      <Modal
-        isOpen={isBroadcastModalOpen}
-        onClose={() => {
-          setIsBroadcastModalOpen(false);
-          setBroadcastSent(false);
-        }}
-        title="Global System Status Broadcast"
-        description="Publish an emergency banner or maintenance notice to all active customer dashboards."
-      >
-        {broadcastSent ? (
-          <div className="py-6 text-center space-y-2">
-            <ShieldCheck className="h-10 w-10 text-emerald-500 mx-auto" />
-            <h4 className="text-sm font-bold">Broadcast Published!</h4>
-            <p className="text-xs text-zinc-500">Notice pushed to all connected client webhooks & headers.</p>
-          </div>
-        ) : (
-          <form onSubmit={handleBroadcast} className="space-y-4 pt-2">
-            <div className="space-y-1.5 text-left">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-                Notice Severity
-              </label>
-              <select className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100">
-                <option>Information / Scheduled Maintenance</option>
-                <option>Degraded Performance Notice</option>
-                <option>Emergency Service Outage</option>
-              </select>
-            </div>
+      {/* Staff Provision Organization Modal */}
+      <CreateOrganizationModal
+        isOpen={isCreateOrgModalOpen}
+        onClose={() => setIsCreateOrgModalOpen(false)}
+      />
 
-            <Input
-              label="Broadcast Banner Text"
-              placeholder="e.g. Scheduled database indexing will occur at 02:00 UTC."
-              value={broadcastMessage}
-              onChange={(e) => setBroadcastMessage(e.target.value)}
-              required
-            />
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setIsBroadcastModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" size="sm">
-                Publish to All Workspaces
-              </Button>
-            </div>
-          </form>
-        )}
-      </Modal>
+      {/* Staff Create User & Assign Role Modal */}
+      <CreateUserModal
+        isOpen={isCreateUserModalOpen}
+        onClose={() => setIsCreateUserModalOpen(false)}
+      />
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ShieldAlert, ArrowLeft, LayoutDashboard, Key, CheckCircle2, UserCheck, ShieldCheck } from "lucide-react";
 
 export default function AccessDeniedPage() {
-  const { role, switchRole, user } = useAuth();
+  const { role, user } = useAuth();
   const [accessRequested, setAccessRequested] = useState(false);
 
   const handleRequestAccess = () => {
@@ -73,20 +73,9 @@ export default function AccessDeniedPage() {
             <div className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400 pt-1">
               <p className="font-semibold text-zinc-800 dark:text-zinc-200">How to resolve this:</p>
               <ul className="space-y-1 pl-4 list-disc">
-                <li>If you are a member of staff, switch your active role to Staff Operations.</li>
                 <li>If you require workspace permissions, request an invite from your team admin.</li>
+                <li>Contact platform operations if you believe your account tier is incorrect.</li>
               </ul>
-            </div>
-
-            {/* Quick 1-Click Role Switch */}
-            <div className="pt-2">
-              <button
-                onClick={() => switchRole(role === "staff" ? "user" : "staff")}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-xs font-bold text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition-colors"
-              >
-                <ShieldCheck className="h-4 w-4" />
-                <span>Switch Role to {role === "staff" ? "Standard User" : "Staff Operations"}</span>
-              </button>
             </div>
           </div>
 

@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { PreferencesProvider } from "@/context/PreferencesContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { OrganizationProvider } from "@/context/OrganizationContext";
 import { NetworkDetector } from "@/components/common/NetworkDetector";
 import { NavigationProgressBar } from "@/components/common/NavigationProgressBar";
 
@@ -26,7 +27,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var saved = localStorage.getItem('nexora-theme');
+                  var saved = localStorage.getItem('theme') || localStorage.getItem('nexora-theme');
                   var root = document.documentElement;
                   if (saved === 'dark') {
                     root.classList.add('dark');
@@ -52,8 +53,10 @@ export default function RootLayout({
         <ThemeProvider>
           <PreferencesProvider>
             <AuthProvider>
-              {children}
-              <NetworkDetector />
+              <OrganizationProvider>
+                {children}
+                <NetworkDetector />
+              </OrganizationProvider>
             </AuthProvider>
           </PreferencesProvider>
         </ThemeProvider>

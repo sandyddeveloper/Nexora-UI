@@ -4,13 +4,12 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { MOCK_TICKETS } from "@/data/mockData";
 import { SupportTicket } from "@/types/dashboard";
-import { CheckCircle, AlertTriangle, Clock, Search, Filter, ShieldCheck } from "lucide-react";
+import { CheckCircle, AlertTriangle, Clock, Search, Filter, ShieldCheck, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function StaffTicketQueue() {
-  const [tickets, setTickets] = useState<SupportTicket[]>(MOCK_TICKETS);
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [filter, setFilter] = useState<"all" | "urgent" | "in_progress" | "resolved">("all");
   const [search, setSearch] = useState("");
 
@@ -93,79 +92,88 @@ export function StaffTicketQueue() {
       </CardHeader>
 
       <CardContent>
-        {/* Table Container */}
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-zinc-50 dark:bg-zinc-900/80 text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider border-b border-zinc-200 dark:border-zinc-800">
-              <tr>
-                <th className="px-4 py-3">Ticket ID & Subject</th>
-                <th className="px-4 py-3">Customer</th>
-                <th className="px-4 py-3">Priority</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">SLA Target</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-200/60 dark:divide-zinc-800/60 bg-white dark:bg-zinc-950">
-              {filteredTickets.map((ticket) => (
-                <tr
-                  key={ticket.id}
-                  className="hover:bg-purple-50/40 dark:hover:bg-purple-950/20 transition-colors"
-                >
-                  <td className="px-4 py-3.5">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
-                          {ticket.id}
-                        </span>
-                        <span className="text-[10px] text-zinc-400">({ticket.category})</span>
-                      </div>
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200 max-w-sm truncate mt-0.5">
-                        {ticket.subject}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-3.5">
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-zinc-900 dark:text-zinc-100">{ticket.customerName}</span>
-                      <span className="text-[11px] text-zinc-400 truncate">{ticket.customerEmail}</span>
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-3.5">{getPriorityBadge(ticket.priority)}</td>
-
-                  <td className="px-4 py-3.5">{getStatusBadge(ticket.status)}</td>
-
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300 font-medium">
-                      <Clock className="h-3 w-3 text-zinc-400" />
-                      <span>{ticket.slaTimeLeft}</span>
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-3.5 text-right">
-                    {ticket.status !== "resolved" ? (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleResolve(ticket.id)}
-                        className="text-xs"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Resolve
-                      </Button>
-                    ) : (
-                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-end gap-1">
-                        <CheckCircle className="h-3 w-3" /> Closed
-                      </span>
-                    )}
-                  </td>
+        {filteredTickets.length === 0 ? (
+          <div className="py-12 text-center space-y-2 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30">
+            <div className="h-10 w-10 rounded-2xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 flex items-center justify-center mx-auto">
+              <Inbox className="h-5 w-5" />
+            </div>
+            <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">No Support Tickets in Queue</p>
+            <p className="text-[11px] text-zinc-400">All customer systems are operational and SLA thresholds are met.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-zinc-50 dark:bg-zinc-900/80 text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider border-b border-zinc-200 dark:border-zinc-800">
+                <tr>
+                  <th className="px-4 py-3">Ticket ID & Subject</th>
+                  <th className="px-4 py-3">Customer</th>
+                  <th className="px-4 py-3">Priority</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">SLA Target</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-zinc-200/60 dark:divide-zinc-800/60 bg-white dark:bg-zinc-950">
+                {filteredTickets.map((ticket) => (
+                  <tr
+                    key={ticket.id}
+                    className="hover:bg-purple-50/40 dark:hover:bg-purple-950/20 transition-colors"
+                  >
+                    <td className="px-4 py-3.5">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
+                            {ticket.id}
+                          </span>
+                          <span className="text-[10px] text-zinc-400">({ticket.category})</span>
+                        </div>
+                        <span className="font-medium text-zinc-800 dark:text-zinc-200 max-w-sm truncate mt-0.5">
+                          {ticket.subject}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3.5">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">{ticket.customerName}</span>
+                        <span className="text-[11px] text-zinc-400 truncate">{ticket.customerEmail}</span>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3.5">{getPriorityBadge(ticket.priority)}</td>
+
+                    <td className="px-4 py-3.5">{getStatusBadge(ticket.status)}</td>
+
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300 font-medium">
+                        <Clock className="h-3 w-3 text-zinc-400" />
+                        <span>{ticket.slaTimeLeft}</span>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3.5 text-right">
+                      {ticket.status !== "resolved" ? (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleResolve(ticket.id)}
+                          className="text-xs"
+                        >
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Resolve
+                        </Button>
+                      ) : (
+                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-end gap-1">
+                          <CheckCircle className="h-3 w-3" /> Closed
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

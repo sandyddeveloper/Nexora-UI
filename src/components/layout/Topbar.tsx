@@ -5,10 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { MOCK_NOTIFICATIONS } from "@/data/mockData";
 import { NotificationItem } from "@/types/auth";
 import { usePreferences } from "@/context/PreferencesContext";
 import { PreferencesModal } from "@/components/common/PreferencesModal";
+import { useOrganization } from "@/context/OrganizationContext";
+import { CreateOrganizationModal } from "@/components/organizations/CreateOrganizationModal";
+import { countryCodeToFlag } from "@/hooks/useLanguages";
 import {
   Menu,
   Search,
@@ -25,10 +27,14 @@ import {
   ChevronDown,
   Globe,
   SlidersHorizontal,
+  Building2,
+  Plus,
+  Check,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 interface TopbarProps {
@@ -37,20 +43,24 @@ interface TopbarProps {
 
 export function Topbar({ onMenuToggle }: TopbarProps) {
   const pathname = usePathname();
-  const { user, role, switchRole, logout } = useAuth();
+  const { user, role, logout } = useAuth();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { language } = usePreferences();
+  const { currentOrganization, organizations, switchOrganization } = useOrganization();
 
   // Dropdown states
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isPrefModalOpen, setIsPrefModalOpen] = useState(false);
+  const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false);
+  const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const orgRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -60,6 +70,9 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
       }
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
+      }
+      if (orgRef.current && !orgRef.current.contains(event.target as Node)) {
+        setIsOrgDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -115,6 +128,84 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
               <span className="text-zinc-600 dark:text-zinc-300">{getPageTitle()}</span>
             </div>
           </div>
+
+          {/* Active Organization Selector Pill */}
+          {currentOrganization && (
+            <div className="relative hidden xl:block ml-2" ref={orgRef}>
+              <button
+                type="button"
+                onClick={() => setIsOrgDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-2 h-9 px-3 rounded-xl border border-purple-200/80 dark:border-purple-800/80 bg-purple-50/60 dark:bg-purple-950/30 text-xs font-bold text-purple-900 dark:text-purple-200 hover:bg-purple-100 dark:hover:bg-purple-950/60 transition-all cursor-pointer"
+              >
+                <Building2 className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                <span className="max-w-[140px] truncate">{currentOrganization.name}</span>
+                <span className="text-xs">{countryCodeToFlag(currentOrganization.country_code)}</span>
+                <ChevronDown className="h-3 w-3 text-purple-400" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isOrgDropdownOpen && (
+                <div className="absolute left-0 mt-2 w-72 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl z-50 p-2 space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+                    <span>Your Organizations</span>
+                    <Badge variant="purple" size="sm">{organizations.length}</Badge>
+                  </div>
+
+                  <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+                    {organizations.map((org) => {
+                      const isSelected = currentOrganization.id === org.id;
+                      return (
+                        <button
+                          key={org.id}
+                          onClick={() => {
+                            switchOrganization(org);
+                            setIsOrgDropdownOpen(false);
+                          }}
+                          className={cn(
+                            "w-full flex items-center justify-between p-2 rounded-xl text-left text-xs transition-colors cursor-pointer",
+                            isSelected
+                              ? "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-bold"
+                              : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                          )}
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <span className="text-sm">{countryCodeToFlag(org.country_code)}</span>
+                            <span className="truncate">{org.name}</span>
+                          </div>
+                          {isSelected && <Check className="h-3.5 w-3.5 text-purple-600 shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pt-1.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+                    <Link
+                      href="/dashboard/workspaces"
+                      onClick={() => setIsOrgDropdownOpen(false)}
+                      className="text-[11px] font-semibold text-zinc-500 hover:text-purple-600 px-2 py-1"
+                    >
+                      Manage All
+                    </Link>
+
+                    {role === "staff" && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setIsOrgDropdownOpen(false);
+                          setIsCreateOrgModalOpen(true);
+                        }}
+                        leftIcon={<Plus className="h-3 w-3" />}
+                        className="text-[11px] py-1 px-2.5"
+                      >
+                        New Org
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Center: Quick Search Bar */}
@@ -135,34 +226,6 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
 
         {/* Right Side Controls */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* Quick Role Switcher Pill */}
-          <div className="hidden sm:flex items-center rounded-xl bg-purple-50 dark:bg-purple-950/40 p-1 border border-purple-200/60 dark:border-purple-800/40">
-            <button
-              onClick={() => switchRole("user")}
-              className={cn(
-                "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all",
-                role === "user"
-                  ? "bg-purple-600 text-white shadow-sm shadow-purple-600/30"
-                  : "text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-300"
-              )}
-            >
-              <User className="h-3 w-3" />
-              User
-            </button>
-            <button
-              onClick={() => switchRole("staff")}
-              className={cn(
-                "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all",
-                role === "staff"
-                  ? "bg-purple-600 text-white shadow-sm shadow-purple-600/30"
-                  : "text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-300"
-              )}
-            >
-              <Shield className="h-3 w-3" />
-              Staff
-            </button>
-          </div>
-
           {/* Platform Preferences (Language, Notifications, Theme) */}
           <button
             onClick={() => setIsPrefModalOpen(true)}
@@ -253,7 +316,7 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || "User")}`}
                 alt={user?.name || "Profile"}
                 className="h-7 w-7 rounded-lg object-cover ring-1 ring-purple-500/40"
               />
@@ -266,8 +329,8 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
                 <div className="p-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={user?.avatar}
-                    alt={user?.name}
+                    src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || "User")}`}
+                    alt={user?.name || "User"}
                     className="h-10 w-10 rounded-xl object-cover ring-2 ring-purple-500/40"
                   />
                   <div className="overflow-hidden">
@@ -376,6 +439,12 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
       <PreferencesModal
         isOpen={isPrefModalOpen}
         onClose={() => setIsPrefModalOpen(false)}
+      />
+
+      {/* Quick Organization Creation Modal */}
+      <CreateOrganizationModal
+        isOpen={isCreateOrgModalOpen}
+        onClose={() => setIsCreateOrgModalOpen(false)}
       />
     </>
   );
