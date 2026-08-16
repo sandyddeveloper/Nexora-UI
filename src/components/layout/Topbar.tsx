@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { MOCK_NOTIFICATIONS } from "@/data/mockData";
 import { NotificationItem } from "@/types/auth";
+import { usePreferences } from "@/context/PreferencesContext";
+import { PreferencesModal } from "@/components/common/PreferencesModal";
 import {
   Menu,
   Search,
@@ -21,6 +23,8 @@ import {
   Sparkles,
   Command,
   ChevronDown,
+  Globe,
+  SlidersHorizontal,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
@@ -35,11 +39,13 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
   const pathname = usePathname();
   const { user, role, switchRole, logout } = useAuth();
   const { resolvedTheme, toggleTheme } = useTheme();
+  const { language } = usePreferences();
 
   // Dropdown states
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isPrefModalOpen, setIsPrefModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
 
@@ -156,6 +162,17 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
               Staff
             </button>
           </div>
+
+          {/* Platform Preferences (Language, Notifications, Theme) */}
+          <button
+            onClick={() => setIsPrefModalOpen(true)}
+            className="flex items-center gap-1.5 h-9 px-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-300 transition-colors"
+            title="Platform Preferences (Language, Notifications, Theme)"
+          >
+            <span className="text-sm leading-none">{language.flag}</span>
+            <span className="hidden sm:inline text-xs font-semibold">{language.code.toUpperCase()}</span>
+            <SlidersHorizontal className="h-3 w-3 text-zinc-400" />
+          </button>
 
           {/* Theme Toggle Button */}
           <button
@@ -354,6 +371,12 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
           </div>
         </div>
       </Modal>
+
+      {/* Platform Preferences Modal (Language, Notifications, Theme) */}
+      <PreferencesModal
+        isOpen={isPrefModalOpen}
+        onClose={() => setIsPrefModalOpen(false)}
+      />
     </>
   );
 }

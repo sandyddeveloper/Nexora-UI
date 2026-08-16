@@ -12,6 +12,9 @@ import {
   Phone,
   MessageSquare,
   Sparkles,
+  Wrench,
+  Briefcase,
+  CreditCard,
 } from "lucide-react";
 
 export function ContactSection() {
@@ -92,15 +95,24 @@ export function ContactSection() {
 
                 <div className="space-y-2.5 text-xs">
                   <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-between">
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">🛠️ Technical Support & Bugs</span>
+                    <span className="flex items-center gap-2 font-semibold text-zinc-800 dark:text-zinc-200">
+                      <Wrench className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                      Technical Support & Bugs
+                    </span>
                     <Badge variant="purple" size="sm">Priority Queue</Badge>
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-between">
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">💼 Custom Quotas & Sales</span>
+                    <span className="flex items-center gap-2 font-semibold text-zinc-800 dark:text-zinc-200">
+                      <Briefcase className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                      Custom Quotas & Sales
+                    </span>
                     <Badge variant="blue" size="sm">1-on-1 Demo</Badge>
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-between">
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">💳 Billing & Invoicing</span>
+                    <span className="flex items-center gap-2 font-semibold text-zinc-800 dark:text-zinc-200">
+                      <CreditCard className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      Billing & Invoicing
+                    </span>
                     <Badge variant="gray" size="sm">Finance Team</Badge>
                   </div>
                 </div>
